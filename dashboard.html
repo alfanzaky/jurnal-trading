@@ -2,67 +2,117 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard | Jurnal Trading</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard - Jurnal Trading</title>
+
+  <!-- Bootstrap CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+
+  <!-- Google Fonts (optional) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8f9fa;
+    }
+
+    .hero {
+      background: linear-gradient(to right, #4e54c8, #8f94fb);
+      color: white;
+      padding: 40px 20px;
+      border-radius: 12px;
+    }
+
+    .card-stat {
+      border-left: 5px solid #4e54c8;
+    }
+
+    .profile-pic {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+  </style>
 </head>
-<body class="bg-dark text-light">
-
+<body>
   <!-- Navbar -->
-  <div id="navbar-container"></div>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">📊 Jurnal Trading</a>
+      <div class="d-flex align-items-center">
+        <span class="text-white me-3" id="userEmail">...</span>
+        <button class="btn btn-outline-light btn-sm" id="logoutBtn">Logout</button>
+      </div>
+    </div>
+  </nav>
 
-  <div class="container py-5">
-    <h2 class="mb-4">Dashboard</h2>
+  <!-- Hero section -->
+  <section class="container mt-4">
+    <div class="hero shadow">
+      <h3 id="welcomeMsg">Selamat datang, Trader!</h3>
+      <p class="mb-0">Lihat performa dan catatan trading kamu di sini.</p>
+    </div>
+  </section>
+
+  <!-- Statistik Ringkas -->
+  <section class="container my-4">
     <div class="row g-4">
-
-      <!-- Ringkasan -->
       <div class="col-md-4">
-        <div class="card text-bg-secondary shadow">
+        <div class="card card-stat shadow-sm">
           <div class="card-body">
-            <h5 class="card-title">Total Entry</h5>
-            <p id="total-entry" class="fs-4">0</p>
+            <h5 class="card-title">Total Jurnal</h5>
+            <p class="fs-4 mb-0" id="totalJurnal">-</p>
           </div>
         </div>
       </div>
-
       <div class="col-md-4">
-        <div class="card text-bg-success shadow">
+        <div class="card card-stat shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">Win Rate</h5>
+            <p class="fs-4 mb-0" id="winRate">-</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card card-stat shadow-sm">
           <div class="card-body">
             <h5 class="card-title">Total Profit</h5>
-            <p id="total-profit" class="fs-4">0</p>
+            <p class="fs-4 mb-0" id="totalProfit">-</p>
           </div>
         </div>
       </div>
-
-      <div class="col-md-4">
-        <div class="card text-bg-danger shadow">
-          <div class="card-body">
-            <h5 class="card-title">Total Loss</h5>
-            <p id="total-loss" class="fs-4">0</p>
-          </div>
-        </div>
-      </div>
-
     </div>
-  </div>
+  </section>
+
+  <!-- Chart Placeholder -->
+  <section class="container mb-5">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Grafik Performa</h5>
+        <canvas id="performanceChart" height="100"></canvas>
+      </div>
+    </div>
+  </section>
 
   <!-- Footer -->
-  <div id="footer-container" class="mt-5"></div>
+  <footer class="text-center py-3 text-muted bg-light mt-auto">
+    <small>© 2025 Jurnal Trading by Alfanzaky</small>
+  </footer>
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-  <script src="firebase/firebase-config.js"></script>
-  <script src="firebase/auth.js"></script>
-  <script src="firebase/db.js"></script>
+  <!-- Firebase SDK + Config -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="/firebase/firebase-config.js"></script>
+  <script src="/firebase/auth.js"></script>
+  <script src="/firebase/db.js"></script>
 
-  <!-- Component Scripts -->
-  <script src="assets/js/navbar.js"></script>
-  <script src="assets/js/footer.js"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- Dashboard Logic -->
-  <script src="assets/js/dashboard.js"></script>
+  <!-- Dashboard logic -->
+  <script src="/assets/js/dashboard.js"></script>
 </body>
 </html>
