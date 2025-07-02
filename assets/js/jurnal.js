@@ -85,23 +85,34 @@ function initJurnalPage() {
       const snapshot = await firebase.firestore()
         .collection("jurnal")
         .where("uid", "==", uid)
-        .orderBy("tanggal", "desc") // pakai tanggal, bukan timestamp
-        .get();
+        .get(); // ❌ Tidak pakai orderBy
 
       if (snapshot.empty) {
         tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-muted">📭 Belum ada data jurnal.</td></tr>`;
         return;
       }
 
-      tableBody.innerHTML = "";
+      // Urutkan manual berdasarkan tanggal
+      const entries = [];
       snapshot.forEach((doc) => {
-        const data = doc.data();
+        entries.push(doc.data());
+      });
 
-        const tanggalStr = data.tanggal.toDate().toLocaleDateString("id-ID", {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-        });
+      entries.sort((a, b) => {
+        const tA = a.tanggal?.toDate?.() || new Date(0);
+        const tB = b.tanggal?.toDate?.() || new Date(0);
+        return tB - tA;
+      });
+
+      tableBody.innerHTML = "";
+      entries.forEach((data) => {
+        const tanggalStr = data.tanggal?.toDate?.()
+          ? data.tanggal.toDate().toLocaleDateString("id-ID", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            })
+          : "-";
 
         const row = `
           <tr>
