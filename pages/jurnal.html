@@ -9,13 +9,12 @@
   <style>
     body {
       font-family: 'Inter', sans-serif;
-      background-color: #f9f9f9;
+      background-color: #f8f9fa;
     }
-    .form-section {
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    .form-label.required::after {
+      content: "*";
+      color: red;
+      margin-left: 4px;
     }
   </style>
 </head>
@@ -23,83 +22,92 @@
   <!-- Navbar -->
   <div id="navbarContainer"></div>
 
-  <!-- Form Input -->
-  <section class="container mt-5">
-    <div class="form-section">
-      <h4 class="mb-4">Catatan Trading Hari Ini</h4>
-      <form id="jurnalForm">
-        <div class="row g-3">
+  <main class="container py-4">
+    <h2 class="mb-4">Tambah Jurnal Trading</h2>
+
+    <div class="card shadow-sm mb-5">
+      <div class="card-body">
+        <form id="jurnalForm" class="row g-3">
           <div class="col-md-4">
-            <label for="tanggal" class="form-label">Tanggal</label>
-            <input type="date" class="form-control" id="tanggal" required>
+            <label for="tanggal" class="form-label required">Tanggal</label>
+            <input type="date" class="form-control" id="tanggal" required />
           </div>
           <div class="col-md-4">
-            <label for="pair" class="form-label">Pair / Asset</label>
-            <input type="text" class="form-control" id="pair" placeholder="Contoh: EUR/USD" required>
+            <label for="pair" class="form-label required">Pair / Instrumen</label>
+            <input type="text" class="form-control" id="pair" placeholder="Contoh: EUR/USD" required />
           </div>
           <div class="col-md-4">
-            <label for="tipe" class="form-label">Tipe Order</label>
+            <label for="tipe" class="form-label required">Tipe Order</label>
             <select class="form-select" id="tipe" required>
-              <option value="">Pilih...</option>
+              <option value="">Pilih</option>
               <option value="Buy">Buy</option>
               <option value="Sell">Sell</option>
             </select>
           </div>
-
-          <div class="col-md-3">
-            <label for="volume" class="form-label">Lot / Volume</label>
-            <input type="number" step="0.01" class="form-control" id="volume" required>
-          </div>
-          <div class="col-md-3">
-            <label for="entry" class="form-label">Entry Price</label>
-            <input type="number" step="0.0001" class="form-control" id="entry" required>
-          </div>
-          <div class="col-md-3">
-            <label for="sl" class="form-label">Stop Loss</label>
-            <input type="number" step="0.0001" class="form-control" id="sl">
-          </div>
-          <div class="col-md-3">
-            <label for="tp" class="form-label">Take Profit</label>
-            <input type="number" step="0.0001" class="form-control" id="tp">
-          </div>
-
           <div class="col-md-4">
-            <label for="close" class="form-label">Harga Close</label>
-            <input type="number" step="0.0001" class="form-control" id="close">
+            <label for="entry" class="form-label required">Entry Price</label>
+            <input type="number" step="0.0001" class="form-control" id="entry" required />
           </div>
           <div class="col-md-4">
-            <label for="profit" class="form-label">Hasil / Profit</label>
-            <input type="number" step="0.01" class="form-control" id="profit" required>
+            <label for="exit" class="form-label required">Exit Price</label>
+            <input type="number" step="0.0001" class="form-control" id="exit" required />
           </div>
           <div class="col-md-4">
-            <label for="emosi" class="form-label">Emosi</label>
+            <label for="lot" class="form-label required">Lot</label>
+            <input type="number" step="0.01" class="form-control" id="lot" required />
+          </div>
+          <div class="col-md-6">
+            <label for="emosi" class="form-label">Emosi Saat Trading</label>
             <select class="form-select" id="emosi">
-              <option value="">Netral</option>
+              <option value="">Pilih</option>
               <option value="Tenang">Tenang</option>
               <option value="Takut">Takut</option>
               <option value="Serakah">Serakah</option>
-              <option value="Bosan">Bosan</option>
-              <option value="Emosional">Emosional</option>
+              <option value="Tergesa-gesa">Tergesa-gesa</option>
+              <option value="Yakin">Yakin</option>
             </select>
           </div>
-
-          <div class="col-12">
-            <label for="catatan" class="form-label">Catatan / Analisis</label>
-            <textarea class="form-control" id="catatan" rows="3"></textarea>
+          <div class="col-md-6">
+            <label for="catatan" class="form-label">Catatan Tambahan</label>
+            <textarea class="form-control" id="catatan" rows="2" placeholder="Opsional..."></textarea>
           </div>
-
           <div class="col-12 text-end">
-            <button type="submit" class="btn btn-primary mt-3">Simpan Jurnal</button>
+            <button type="submit" class="btn btn-primary">Simpan Jurnal</button>
           </div>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
-  </section>
+
+    <!-- Tabel Jurnal -->
+    <section>
+      <h4>Riwayat Jurnal</h4>
+      <div class="table-responsive mt-3">
+        <table class="table table-bordered table-hover">
+          <thead class="table-dark text-center">
+            <tr>
+              <th>Tanggal</th>
+              <th>Pair</th>
+              <th>Tipe</th>
+              <th>Entry</th>
+              <th>Exit</th>
+              <th>Lot</th>
+              <th>Profit</th>
+              <th>Emosi</th>
+              <th>Catatan</th>
+            </tr>
+          </thead>
+          <tbody id="jurnalTableBody">
+            <!-- Diisi via JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
 
   <!-- Footer -->
   <div id="footerContainer" class="mt-5"></div>
 
-  <!-- Firebase + JS -->
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -107,9 +115,11 @@
   <script src="/firebase/auth.js"></script>
   <script src="/firebase/db.js"></script>
 
-  <!-- JS -->
+  <!-- Komponen Modular -->
   <script src="/assets/js/navbar.js"></script>
   <script src="/assets/js/footer.js"></script>
+
+  <!-- Logic Jurnal -->
   <script src="/assets/js/jurnal.js"></script>
 </body>
 </html>
