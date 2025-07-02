@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // Tunggu hingga navbar dan footer selesai dimuat
-  waitForElement("#navbarContainer", initJurnalLogic);
+  waitForElement("#navbarContainer", initJurnalPage);
 });
 
 function waitForElement(selector, callback) {
@@ -9,16 +8,17 @@ function waitForElement(selector, callback) {
       clearInterval(interval);
       callback();
     }
-  }, 100); // periksa tiap 100ms
+  }, 100);
 }
 
-function initJurnalLogic() {
-  console.log("✅ jurnal.js dimuat dan siap");
+function initJurnalPage() {
+  console.log("✅ jurnal.js aktif (menunggu form)...");
 
   const form = document.getElementById("jurnalForm");
   const tableBody = document.getElementById("jurnalTableBody");
-  if (!form) {
-    alert("❌ Form jurnal tidak ditemukan.");
+
+  if (!form || !tableBody) {
+    alert("❌ Form atau tabel tidak ditemukan!");
     return;
   }
 
@@ -47,7 +47,7 @@ function initJurnalLogic() {
     const catatan = document.getElementById("catatan").value;
 
     if (isNaN(entry) || isNaN(exit) || isNaN(lot)) {
-      alert("❌ Entry/Exit/Lot harus angka!");
+      alert("❌ Entry, Exit, atau Lot tidak valid.");
       return;
     }
 
@@ -60,17 +60,17 @@ function initJurnalLogic() {
       entry,
       exit,
       lot,
+      profit: parseFloat(profit.toFixed(2)),
       emosi: emosi || null,
       catatan: catatan || null,
-      profit: parseFloat(profit.toFixed(2)),
       uid: currentUser.uid,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
     };
 
     try {
       alert("🕒 Menyimpan ke Firestore...");
       await firebase.firestore().collection("jurnal").add(data);
-      alert("✅ Data jurnal berhasil disimpan!");
+      alert("✅ Data berhasil disimpan!");
       form.reset();
       await loadJurnal(currentUser.uid);
     } catch (err) {
@@ -80,6 +80,7 @@ function initJurnalLogic() {
 
   async function loadJurnal(uid) {
     tableBody.innerHTML = `<tr><td colspan="9" class="text-center">⏳ Memuat data...</td></tr>`;
+
     try {
       const snapshot = await firebase.firestore()
         .collection("jurnal")
@@ -88,7 +89,7 @@ function initJurnalLogic() {
         .get();
 
       if (snapshot.empty) {
-        tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-muted">📭 Belum ada jurnal.</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-muted">📭 Belum ada data jurnal.</td></tr>`;
         return;
       }
 
@@ -103,10 +104,11 @@ function initJurnalLogic() {
             <td>${data.entry}</td>
             <td>${data.exit}</td>
             <td>${data.lot}</td>
-            <td class="${data.profit >= 0 ? "text-success" : "text-danger"}">${data.profit}</td>
+            <td class="${data.profit >= 0 ? 'text-success' : 'text-danger'}">${data.profit}</td>
             <td>${data.emosi || "-"}</td>
             <td>${data.catatan || "-"}</td>
-          </tr>`;
+          </tr>
+        `;
         tableBody.innerHTML += row;
       });
     } catch (err) {
