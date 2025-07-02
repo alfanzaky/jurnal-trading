@@ -1,11 +1,24 @@
 document.addEventListener("DOMContentLoaded", () => {
-  alert("✅ jurnal.js dimuat");
+  // Tunggu hingga navbar dan footer selesai dimuat
+  waitForElement("#navbarContainer", initJurnalLogic);
+});
+
+function waitForElement(selector, callback) {
+  const interval = setInterval(() => {
+    if (document.querySelector(selector)) {
+      clearInterval(interval);
+      callback();
+    }
+  }, 100); // periksa tiap 100ms
+}
+
+function initJurnalLogic() {
+  console.log("✅ jurnal.js dimuat dan siap");
 
   const form = document.getElementById("jurnalForm");
   const tableBody = document.getElementById("jurnalTableBody");
-
-  if (!form || !tableBody) {
-    alert("🚨 Elemen form atau tabel tidak ditemukan!");
+  if (!form) {
+    alert("❌ Form jurnal tidak ditemukan.");
     return;
   }
 
@@ -14,17 +27,15 @@ document.addEventListener("DOMContentLoaded", () => {
   firebase.auth().onAuthStateChanged(async (user) => {
     if (user) {
       currentUser = user;
-      alert("👤 Pengguna login: " + user.email);
-      await loadJurnal();
+      await loadJurnal(user.uid);
     } else {
-      alert("⛔ Belum login, redirect...");
       window.location.href = "/jurnal-trading/index.html";
     }
   });
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    alert("📨 Form disubmit");
+    alert("📨 Form disubmit!");
 
     const tanggal = document.getElementById("tanggal").value;
     const pair = document.getElementById("pair").value;
@@ -36,11 +47,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const catatan = document.getElementById("catatan").value;
 
     if (isNaN(entry) || isNaN(exit) || isNaN(lot)) {
-      alert("⚠️ Entry, Exit, dan Lot harus berupa angka!");
+      alert("❌ Entry/Exit/Lot harus angka!");
       return;
     }
 
     const profit = (exit - entry) * lot * (tipe === "Buy" ? 1 : -1);
+
     const data = {
       tanggal,
       pair,
@@ -48,38 +60,35 @@ document.addEventListener("DOMContentLoaded", () => {
       entry,
       exit,
       lot,
-      profit: parseFloat(profit.toFixed(2)),
       emosi: emosi || null,
       catatan: catatan || null,
+      profit: parseFloat(profit.toFixed(2)),
       uid: currentUser.uid,
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     };
 
     try {
-      alert("📝 Menyimpan data...");
+      alert("🕒 Menyimpan ke Firestore...");
       await firebase.firestore().collection("jurnal").add(data);
       alert("✅ Data jurnal berhasil disimpan!");
       form.reset();
-      await loadJurnal();
-    } catch (error) {
-      console.error("❌ Gagal menyimpan:", error);
-      alert("❌ Error saat simpan: " + error.message);
+      await loadJurnal(currentUser.uid);
+    } catch (err) {
+      alert("❌ Gagal simpan data: " + err.message);
     }
   });
 
-  async function loadJurnal() {
+  async function loadJurnal(uid) {
     tableBody.innerHTML = `<tr><td colspan="9" class="text-center">⏳ Memuat data...</td></tr>`;
-
     try {
-      const snapshot = await firebase
-        .firestore()
+      const snapshot = await firebase.firestore()
         .collection("jurnal")
-        .where("uid", "==", currentUser.uid)
+        .where("uid", "==", uid)
         .orderBy("tanggal", "desc")
         .get();
 
       if (snapshot.empty) {
-        tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-muted">📭 Belum ada data jurnal.</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-muted">📭 Belum ada jurnal.</td></tr>`;
         return;
       }
 
@@ -94,17 +103,14 @@ document.addEventListener("DOMContentLoaded", () => {
             <td>${data.entry}</td>
             <td>${data.exit}</td>
             <td>${data.lot}</td>
-            <td class="${data.profit >= 0 ? 'text-success' : 'text-danger'}">${data.profit}</td>
+            <td class="${data.profit >= 0 ? "text-success" : "text-danger"}">${data.profit}</td>
             <td>${data.emosi || "-"}</td>
             <td>${data.catatan || "-"}</td>
-          </tr>
-        `;
+          </tr>`;
         tableBody.innerHTML += row;
       });
-    } catch (error) {
-      console.error("❌ Gagal memuat jurnal:", error);
-      alert("❌ Gagal load data: " + error.message);
-      tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-danger">Gagal memuat data.</td></tr>`;
+    } catch (err) {
+      tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-danger">❌ Gagal load data.</td></tr>`;
     }
   }
-});
+}
