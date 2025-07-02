@@ -37,7 +37,8 @@ function initJurnalPage() {
     e.preventDefault();
     alert("📨 Form disubmit!");
 
-    const tanggal = document.getElementById("tanggal").value;
+    const tanggalInput = document.getElementById("tanggal").value;
+    const tanggal = firebase.firestore.Timestamp.fromDate(new Date(tanggalInput));
     const pair = document.getElementById("pair").value;
     const tipe = document.getElementById("tipe").value;
     const entry = parseFloat(document.getElementById("entry").value);
