@@ -14,16 +14,18 @@ function waitForElement(selector, callback) {
 function initJurnalPage() {
   const form = document.getElementById("jurnalForm");
   const tableBody = document.getElementById("jurnalTableBody");
-  const submitBtn = document.getElementById("submitBtn");
-  const cancelBtn = document.getElementById("cancelEditBtn");
+  const submitBtn = form.querySelector("button[type=submit]");
   const alertBox = document.getElementById("formAlert");
   const originalFormClass = form.className;
+  const deleteModal = document.getElementById("deleteModal");
+  const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
 
   let currentUser = null;
   let editMode = false;
   let editDocId = null;
   let deleteTargetId = null;
 
+  // Auth state
   firebase.auth().onAuthStateChanged(async (user) => {
     if (user) {
       currentUser = user;
@@ -33,6 +35,7 @@ function initJurnalPage() {
     }
   });
 
+  // Submit form
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -77,7 +80,11 @@ function initJurnalPage() {
       }
 
       form.reset();
-      exitEditMode();
+      editMode = false;
+      editDocId = null;
+      form.className = originalFormClass;
+      submitBtn.textContent = "Simpan Jurnal";
+
       await loadJurnal(currentUser.uid);
     } catch (err) {
       console.error("❌ Gagal simpan:", err);
@@ -85,6 +92,7 @@ function initJurnalPage() {
     }
   });
 
+  // Load tabel jurnal
   async function loadJurnal(uid) {
     tableBody.innerHTML = `<tr><td colspan="10" class="text-center">⏳ Memuat data...</td></tr>`;
 
@@ -101,6 +109,7 @@ function initJurnalPage() {
       }
 
       tableBody.innerHTML = "";
+
       snapshot.forEach((doc) => {
         const data = doc.data();
         const id = doc.id;
@@ -138,6 +147,7 @@ function initJurnalPage() {
     }
   }
 
+  // Edit mode
   window.editJurnal = async function (docId) {
     try {
       const doc = await firebase.firestore().collection("jurnal").doc(docId).get();
@@ -157,54 +167,48 @@ function initJurnalPage() {
       editMode = true;
       editDocId = docId;
       submitBtn.textContent = "Update Jurnal";
-      cancelBtn.classList.remove("d-none");
       form.classList.add("border", "border-warning", "bg-warning-subtle");
-      showAlert("📝 Mode edit aktif — ubah data & klik update", "warning");
+      showAlert("✏️ Mode edit aktif", "warning");
+
       form.scrollIntoView({ behavior: "smooth" });
     } catch (err) {
       console.error("❌ Gagal ambil data:", err);
     }
   };
 
-  cancelBtn.addEventListener("click", () => {
-    form.reset();
-    exitEditMode();
-  });
-
-  function exitEditMode() {
-    editMode = false;
-    editDocId = null;
-    submitBtn.textContent = "Simpan Jurnal";
-    cancelBtn.classList.add("d-none");
-    form.className = originalFormClass;
-    alertBox.innerHTML = "";
-  }
-
+  // Tampilkan alert kecil di samping tombol
   function showAlert(msg, type = "info") {
-    alertBox.innerHTML = `<div class="alert alert-${type} mb-0 py-2 px-3" role="alert">${msg}</div>`;
+    alertBox.innerHTML = `
+      <div class="alert alert-${type} mb-0 py-2 px-3 small d-inline-block" role="alert">
+        ${msg}
+      </div>`;
+    setTimeout(() => {
+      alertBox.innerHTML = "";
+    }, 4000);
   }
 
+  // Tampilkan modal konfirmasi
   window.showDeleteModal = function (id) {
     deleteTargetId = id;
-    const modal = new bootstrap.Modal(document.getElementById("deleteModal"));
+    const modal = new bootstrap.Modal(deleteModal);
     modal.show();
   };
 
-  window.confirmDelete = function () {
+  // Klik tombol "Ya, hapus" di modal
+  confirmDeleteBtn.addEventListener("click", async () => {
     if (!deleteTargetId) return;
 
-    firebase.firestore().collection("jurnal").doc(deleteTargetId).delete()
-      .then(() => {
-        showAlert("🗑️ Data berhasil dihapus.", "success");
-        loadJurnal(currentUser.uid);
-        const modal = bootstrap.Modal.getInstance(document.getElementById("deleteModal"));
-        modal.hide();
-      })
-      .catch((err) => {
-        console.error("❌ Gagal hapus:", err);
-        showAlert("❌ Gagal menghapus data.", "danger");
-      });
+    try {
+      await firebase.firestore().collection("jurnal").doc(deleteTargetId).delete();
+      showAlert("🗑️ Data berhasil dihapus.", "success");
+      await loadJurnal(currentUser.uid);
+    } catch (err) {
+      console.error("❌ Gagal hapus:", err);
+      showAlert("❌ Gagal menghapus data.", "danger");
+    }
 
+    const modal = bootstrap.Modal.getInstance(deleteModal);
+    modal.hide();
     deleteTargetId = null;
-  };
+  });
 }
