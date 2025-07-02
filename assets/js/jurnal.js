@@ -1,36 +1,30 @@
-// Tunggu navbar & footer selesai dimuat (komponen modular pakai fetch async)
-Promise.all([
-  new Promise(resolve => document.addEventListener("navbarLoaded", resolve)),
-  new Promise(resolve => document.addEventListener("footerLoaded", resolve)),
-]).then(() => {
-  alert("✅ Komponen navbar & footer selesai dimuat");
+document.addEventListener("DOMContentLoaded", () => {
+  alert("✅ jurnal.js dimuat");
 
   const form = document.getElementById("jurnalForm");
   const tableBody = document.getElementById("jurnalTableBody");
 
-  if (!form) {
-    alert("🚨 FORM TIDAK DITEMUKAN!");
+  if (!form || !tableBody) {
+    alert("🚨 Elemen form atau tabel tidak ditemukan!");
     return;
   }
 
   let currentUser = null;
 
-  // Cek login user
   firebase.auth().onAuthStateChanged(async (user) => {
     if (user) {
-      alert("✅ Pengguna login terdeteksi");
       currentUser = user;
+      alert("👤 Pengguna login: " + user.email);
       await loadJurnal();
     } else {
-      alert("⚠️ Tidak ada pengguna, redirect ke login...");
+      alert("⛔ Belum login, redirect...");
       window.location.href = "/jurnal-trading/index.html";
     }
   });
 
-  // Saat form disubmit
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    alert("📨 Form disubmit!");
+    alert("📨 Form disubmit");
 
     const tanggal = document.getElementById("tanggal").value;
     const pair = document.getElementById("pair").value;
@@ -42,12 +36,11 @@ Promise.all([
     const catatan = document.getElementById("catatan").value;
 
     if (isNaN(entry) || isNaN(exit) || isNaN(lot)) {
-      alert("❌ Entry/Exit/Lot harus angka valid!");
+      alert("⚠️ Entry, Exit, dan Lot harus berupa angka!");
       return;
     }
 
     const profit = (exit - entry) * lot * (tipe === "Buy" ? 1 : -1);
-
     const data = {
       tanggal,
       pair,
@@ -55,26 +48,28 @@ Promise.all([
       entry,
       exit,
       lot,
+      profit: parseFloat(profit.toFixed(2)),
       emosi: emosi || null,
       catatan: catatan || null,
-      profit: parseFloat(profit.toFixed(2)),
       uid: currentUser.uid,
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     };
 
     try {
-      alert("🕒 Menyimpan ke Firestore...");
+      alert("📝 Menyimpan data...");
       await firebase.firestore().collection("jurnal").add(data);
-      alert("✅ Jurnal berhasil disimpan!");
+      alert("✅ Data jurnal berhasil disimpan!");
       form.reset();
       await loadJurnal();
     } catch (error) {
-      alert("❌ Gagal simpan jurnal: " + error.message);
+      console.error("❌ Gagal menyimpan:", error);
+      alert("❌ Error saat simpan: " + error.message);
     }
   });
 
   async function loadJurnal() {
     tableBody.innerHTML = `<tr><td colspan="9" class="text-center">⏳ Memuat data...</td></tr>`;
+
     try {
       const snapshot = await firebase
         .firestore()
@@ -84,7 +79,7 @@ Promise.all([
         .get();
 
       if (snapshot.empty) {
-        tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-muted">📭 Belum ada jurnal.</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-muted">📭 Belum ada data jurnal.</td></tr>`;
         return;
       }
 
@@ -99,14 +94,16 @@ Promise.all([
             <td>${data.entry}</td>
             <td>${data.exit}</td>
             <td>${data.lot}</td>
-            <td class="${data.profit >= 0 ? "text-success" : "text-danger"}">${data.profit}</td>
+            <td class="${data.profit >= 0 ? 'text-success' : 'text-danger'}">${data.profit}</td>
             <td>${data.emosi || "-"}</td>
             <td>${data.catatan || "-"}</td>
-          </tr>`;
+          </tr>
+        `;
         tableBody.innerHTML += row;
       });
     } catch (error) {
-      alert("❌ Gagal load jurnal: " + error.message);
+      console.error("❌ Gagal memuat jurnal:", error);
+      alert("❌ Gagal load data: " + error.message);
       tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-danger">Gagal memuat data.</td></tr>`;
     }
   }
