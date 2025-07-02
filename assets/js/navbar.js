@@ -1,35 +1,37 @@
 document.addEventListener("DOMContentLoaded", async () => {
   const navbarContainer = document.getElementById("navbarContainer");
+  if (!navbarContainer) return;
 
-  if (navbarContainer) {
-    try {
-      const response = await fetch("/jurnal-trading/components/navbar.html");
-      const html = await response.text();
-      navbarContainer.innerHTML = html;
+  try {
+    // Load isi navbar.html
+    const response = await fetch("/jurnal-trading/components/navbar.html");
+    const html = await response.text();
+    navbarContainer.innerHTML = html;
 
-      // Tunggu sampai Firebase Auth ready
-      const checkAuth = setInterval(() => {
-        if (typeof firebase !== "undefined" && firebase.auth().currentUser) {
-          const user = firebase.auth().currentUser;
-          const emailSpan = document.getElementById("navbarUserEmail");
-          if (emailSpan && user.email) {
-            emailSpan.textContent = user.email;
-          }
-          clearInterval(checkAuth);
-        }
-      }, 200);
+    // 🔐 Cek Firebase sudah ready
+    if (typeof firebase === "undefined") {
+      console.error("Firebase belum dimuat");
+      return;
+    }
 
-      // Logout button handler
-      document.addEventListener("click", (e) => {
-        if (e.target && e.target.id === "navbarLogout") {
-          firebase.auth().signOut().then(() => {
-            window.location.href = "/jurnal-trading/index.html";
+    // 🔄 Tunggu Auth Ready
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        const emailSpan = document.getElementById("navbarUserEmail");
+        if (emailSpan) emailSpan.textContent = user.email;
+
+        // 🔓 Logout button
+        const logoutBtn = document.getElementById("navbarLogout");
+        if (logoutBtn) {
+          logoutBtn.addEventListener("click", () => {
+            firebase.auth().signOut().then(() => {
+              window.location.href = "/jurnal-trading/index.html";
+            });
           });
         }
-      });
-    } catch (err) {
-      console.error("Gagal load navbar:", err);
-    }
+      }
+    });
+  } catch (err) {
+    console.error("Gagal load navbar:", err);
   }
 });
-
