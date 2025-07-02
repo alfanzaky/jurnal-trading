@@ -8,19 +8,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     const html = await response.text();
     navbarContainer.innerHTML = html;
 
-    // 🔐 Cek Firebase sudah ready
+    // 🔐 Pastikan Firebase sudah siap
     if (typeof firebase === "undefined") {
       console.error("Firebase belum dimuat");
       return;
     }
 
-    // 🔄 Tunggu Auth Ready
+    // 🔄 Tunggu auth state
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
+        // Tampilkan email di span
         const emailSpan = document.getElementById("navbarUserEmail");
         if (emailSpan) emailSpan.textContent = user.email;
 
-        // 🔓 Logout button
+        // Tombol logout
         const logoutBtn = document.getElementById("navbarLogout");
         if (logoutBtn) {
           logoutBtn.addEventListener("click", () => {
