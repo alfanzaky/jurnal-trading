@@ -27,6 +27,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const emosi = document.getElementById("emosi").value;
     const catatan = document.getElementById("catatan").value;
 
+    // Validasi input angka
+    if (isNaN(entry) || isNaN(exit) || isNaN(lot)) {
+      alert("Entry, Exit, dan Lot harus berupa angka valid.");
+      return;
+    }
+
+    // Hitung profit
     const profit = (exit - entry) * lot * (tipe === "Buy" ? 1 : -1);
 
     const data = {
@@ -44,7 +51,12 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     try {
-      await firebase.firestore().collection("jurnal").add(data); // otomatis buat koleksi kalau belum ada
+      console.log("Data dikirim ke Firestore:", data);
+      alert("Menyimpan data...");
+
+      await firebase.firestore().collection("jurnal").add(data);
+      alert("Jurnal berhasil disimpan!");
+
       form.reset();
       await loadJurnal();
     } catch (error) {
@@ -53,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Fungsi untuk memuat jurnal
+  // Fungsi untuk memuat data jurnal
   async function loadJurnal() {
     tableBody.innerHTML = `<tr><td colspan="9" class="text-center">Memuat data...</td></tr>`;
 
@@ -70,7 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      tableBody.innerHTML = ""; // bersihkan sebelum render
+      tableBody.innerHTML = "";
 
       snapshot.forEach((doc) => {
         const data = doc.data();
