@@ -3,22 +3,27 @@ document.addEventListener('DOMContentLoaded', () => {
   const registerForm = document.getElementById('registerForm');
   const messageEl = document.getElementById('authMessage');
 
+  // Helper: tampilkan pesan
   const showMessage = (msg, type = 'danger') => {
-    messageEl.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+    messageEl.innerHTML = `<div class="alert alert-${type}" role="alert">${msg}</div>`;
     setTimeout(() => (messageEl.innerHTML = ""), 4000);
   };
 
-  // Helper: disable/enable button
+  // Helper: tombol loading
   const setLoading = (form, loading) => {
     const btn = form.querySelector('button[type="submit"]');
+    if (!btn.dataset.originalText) {
+      btn.dataset.originalText = btn.innerHTML;
+    }
     btn.disabled = loading;
-    btn.innerHTML = loading ? 'Memproses...' : btn.dataset.originalText || btn.innerHTML;
+    btn.innerHTML = loading ? 'Memproses...' : btn.dataset.originalText;
   };
 
-  // Store original button text
-  document.querySelectorAll('form button[type="submit"]').forEach(btn => {
-    btn.dataset.originalText = btn.innerHTML;
-  });
+  // Helper: dapatkan base path (misal: /jurnal-trading)
+  const getBasePath = () => {
+    const path = window.location.pathname.split('/');
+    return '/' + (path[1] || '');
+  };
 
   // Login
   loginForm.addEventListener('submit', async (e) => {
@@ -26,15 +31,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value.trim();
 
-    if (!email || !password) {
-      return showMessage("Email dan password wajib diisi.");
-    }
+    if (!email || !password) return showMessage("Email dan password wajib diisi.");
 
     setLoading(loginForm, true);
 
     try {
       await firebase.auth().signInWithEmailAndPassword(email, password);
-      window.location.href = 'dashboard.html'; // path fix untuk GitHub Pages
+      // Redirect ke dashboard secara dinamis
+      window.location.href = `${window.location.origin}${getBasePath()}/dashboard.html`;
     } catch (err) {
       showMessage(err.message);
     } finally {
@@ -48,9 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const email = document.getElementById('registerEmail').value.trim();
     const password = document.getElementById('registerPassword').value.trim();
 
-    if (!email || !password) {
-      return showMessage("Email dan password wajib diisi.");
-    }
+    if (!email || !password) return showMessage("Email dan password wajib diisi.");
 
     setLoading(registerForm, true);
 
@@ -58,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
       await firebase.auth().createUserWithEmailAndPassword(email, password);
       showMessage('Registrasi berhasil. Silakan login.', 'success');
 
-      // Auto switch ke tab login
+      // Pindah ke tab login
       const loginTab = new bootstrap.Tab(document.querySelector('#login-tab'));
       loginTab.show();
     } catch (err) {
