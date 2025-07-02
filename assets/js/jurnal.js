@@ -74,6 +74,7 @@ function initJurnalPage() {
       await loadJurnal(currentUser.uid);
     } catch (err) {
       alert("❌ Gagal simpan data: " + err.message);
+      console.error("Gagal simpan ke Firestore:", err);
     }
   });
 
@@ -84,34 +85,23 @@ function initJurnalPage() {
       const snapshot = await firebase.firestore()
         .collection("jurnal")
         .where("uid", "==", uid)
-        .get(); // tanpa orderBy biar tidak butuh index
+        .orderBy("tanggal", "desc") // pakai tanggal, bukan timestamp
+        .get();
 
       if (snapshot.empty) {
         tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-muted">📭 Belum ada data jurnal.</td></tr>`;
         return;
       }
 
-      const dataList = [];
-      snapshot.forEach((doc) => {
-        dataList.push(doc.data());
-      });
-
-      // Urutkan data manual berdasarkan timestamp
-      dataList.sort((a, b) => {
-        const t1 = a.tanggal?.toDate?.() || new Date(0);
-        const t2 = b.tanggal?.toDate?.() || new Date(0);
-        return t2 - t1;
-      });
-
       tableBody.innerHTML = "";
-      dataList.forEach((data) => {
-        const tanggalStr = data.tanggal?.toDate?.()
-          ? data.tanggal.toDate().toLocaleDateString("id-ID", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            })
-          : "-";
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+
+        const tanggalStr = data.tanggal.toDate().toLocaleDateString("id-ID", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        });
 
         const row = `
           <tr>
@@ -130,7 +120,7 @@ function initJurnalPage() {
       });
     } catch (err) {
       tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-danger">❌ Gagal load data.</td></tr>`;
-      console.error("❌ Gagal load jurnal:", err);
+      console.error("❌ Gagal load jurnal:", err.code, err.message);
     }
   }
 }
