@@ -1,11 +1,8 @@
-//login.js
-
 document.addEventListener('DOMContentLoaded', () => {
   const loginForm = document.getElementById('loginForm');
   const registerForm = document.getElementById('registerForm');
   const messageEl = document.getElementById('authMessage');
 
-  // Clear error message
   const showMessage = (msg, type = 'danger') => {
     messageEl.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
     setTimeout(() => (messageEl.innerHTML = ""), 4000);
@@ -19,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       await firebase.auth().signInWithEmailAndPassword(email, password);
-      window.location.href = '/dashboard.html';
+      window.location.href = 'dashboard.html'; // fix path!
     } catch (err) {
       showMessage(err.message);
     }
@@ -34,7 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       await firebase.auth().createUserWithEmailAndPassword(email, password);
       showMessage('Registrasi berhasil. Silakan login.', 'success');
-      // Pindah ke tab login setelah berhasil daftar
       const loginTab = new bootstrap.Tab(document.querySelector('#login-tab'));
       loginTab.show();
     } catch (err) {
@@ -42,4 +38,3 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
-
