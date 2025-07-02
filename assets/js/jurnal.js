@@ -84,7 +84,7 @@ function initJurnalPage() {
       const snapshot = await firebase.firestore()
         .collection("jurnal")
         .where("uid", "==", uid)
-        .orderBy("tanggal", "desc")
+        .orderBy("timestamp", "desc")
         .get();
 
       if (snapshot.empty) {
@@ -93,11 +93,16 @@ function initJurnalPage() {
       }
 
       tableBody.innerHTML = "";
+
       snapshot.forEach((doc) => {
         const data = doc.data();
 
-        // Konversi timestamp ke string tanggal
-        const tanggalStr = data.tanggal.toDate().toISOString().split("T")[0];
+        // Cek tanggal aman
+        let tanggalStr = "-";
+        if (data.tanggal && data.tanggal.toDate) {
+          const tgl = data.tanggal.toDate();
+          tanggalStr = tgl.toLocaleDateString("id-ID"); // Output misalnya: 2/7/2025
+        }
 
         const row = `
           <tr>
@@ -115,8 +120,8 @@ function initJurnalPage() {
         tableBody.innerHTML += row;
       });
     } catch (err) {
+      console.error("❌ Gagal load jurnal:", err);
       tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-danger">❌ Gagal load data.</td></tr>`;
-      console.error("Gagal load jurnal:", err);
     }
   }
 }
