@@ -1,15 +1,24 @@
 document.addEventListener("DOMContentLoaded", () => {
+  alert("✅ jurnal.js dimuat");
+
   const form = document.getElementById("jurnalForm");
   const tableBody = document.getElementById("jurnalTableBody");
+
+  if (!form) {
+    alert("🚨 FORM TIDAK DITEMUKAN!");
+    return;
+  }
 
   let currentUser = null;
 
   // Cek login user
   firebase.auth().onAuthStateChanged(async (user) => {
     if (user) {
+      alert("✅ Pengguna login terdeteksi");
       currentUser = user;
       await loadJurnal();
     } else {
+      alert("⚠️ Tidak ada pengguna, redirect ke login...");
       window.location.href = "/jurnal-trading/index.html";
     }
   });
@@ -17,6 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Saat form disubmit
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
+    alert("📨 Form disubmit!");
 
     const tanggal = document.getElementById("tanggal").value;
     const pair = document.getElementById("pair").value;
@@ -27,13 +37,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const emosi = document.getElementById("emosi").value;
     const catatan = document.getElementById("catatan").value;
 
-    // Validasi input angka
     if (isNaN(entry) || isNaN(exit) || isNaN(lot)) {
-      alert("Entry, Exit, dan Lot harus berupa angka valid.");
+      alert("❌ Entry/Exit/Lot harus angka valid!");
       return;
     }
 
-    // Hitung profit
     const profit = (exit - entry) * lot * (tipe === "Buy" ? 1 : -1);
 
     const data = {
@@ -51,24 +59,18 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     try {
-      console.log("Data dikirim ke Firestore:", data);
-      alert("Menyimpan data...");
-
+      alert("🕒 Menyimpan ke Firestore...");
       await firebase.firestore().collection("jurnal").add(data);
-      alert("Jurnal berhasil disimpan!");
-
+      alert("✅ Jurnal berhasil disimpan!");
       form.reset();
       await loadJurnal();
     } catch (error) {
-      console.error("Gagal menyimpan jurnal:", error);
-      alert("Terjadi kesalahan saat menyimpan jurnal.");
+      alert("❌ Gagal simpan jurnal: " + error.message);
     }
   });
 
-  // Fungsi untuk memuat data jurnal
   async function loadJurnal() {
-    tableBody.innerHTML = `<tr><td colspan="9" class="text-center">Memuat data...</td></tr>`;
-
+    tableBody.innerHTML = `<tr><td colspan="9" class="text-center">⏳ Memuat data...</td></tr>`;
     try {
       const snapshot = await firebase
         .firestore()
@@ -78,12 +80,11 @@ document.addEventListener("DOMContentLoaded", () => {
         .get();
 
       if (snapshot.empty) {
-        tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-muted">Belum ada jurnal.</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-muted">📭 Belum ada jurnal.</td></tr>`;
         return;
       }
 
       tableBody.innerHTML = "";
-
       snapshot.forEach((doc) => {
         const data = doc.data();
         const row = `
@@ -101,7 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
         tableBody.innerHTML += row;
       });
     } catch (error) {
-      console.error("Gagal memuat jurnal:", error);
+      alert("❌ Gagal load jurnal: " + error.message);
       tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-danger">Gagal memuat data.</td></tr>`;
     }
   }
