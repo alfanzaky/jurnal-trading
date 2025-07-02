@@ -25,4 +25,47 @@
       </div>
       <div class="col-md-4">
         <label class="form-label">Hasil</label>
-        <input ty
+        <input type="number" class="form-control" id="hasil" placeholder="+100 / -50" required>
+      </div>
+      <div class="col-12">
+        <label class="form-label">Catatan</label>
+        <textarea class="form-control" id="catatan" rows="2"></textarea>
+      </div>
+      <div class="col-12">
+        <button type="submit" class="btn btn-primary">Simpan</button>
+      </div>
+    </form>
+
+    <h3>Riwayat Jurnal</h3>
+    <table class="table table-dark table-striped">
+      <thead>
+        <tr>
+          <th>Tanggal</th>
+          <th>Pair</th>
+          <th>Hasil</th>
+          <th>Catatan</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="jurnal-table">
+        <!-- Data akan dimuat oleh jurnal.js -->
+      </tbody>
+    </table>
+  </main>
+
+  <!-- Komponen Footer -->
+  <div id="footer-container"></div>
+
+  <!-- Firebase + Komponen -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+  <script src="/jurnal-trading/firebase/firebase-config.js"></script>
+  <script src="/jurnal-trading/firebase/auth.js"></script>
+  <script src="/jurnal-trading/firebase/db.js"></script>
+
+  <script src="/jurnal-trading/assets/js/navbar.js"></script>
+  <script src="/jurnal-trading/assets/js/footer.js"></script>
+  <script src="/jurnal-trading/assets/js/jurnal.js"></script>
+</body>
+</html>
