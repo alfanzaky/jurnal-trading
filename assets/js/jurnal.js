@@ -12,13 +12,11 @@ function waitForElement(selector, callback) {
 }
 
 function initJurnalPage() {
-  console.log("✅ jurnal.js aktif");
-
   const form = document.getElementById("jurnalForm");
   const tableBody = document.getElementById("jurnalTableBody");
 
   if (!form || !tableBody) {
-    alert("❌ Form atau tabel tidak ditemukan!");
+    console.error("❌ Form atau tabel tidak ditemukan!");
     return;
   }
 
@@ -37,7 +35,6 @@ function initJurnalPage() {
     e.preventDefault();
 
     const tanggalInput = document.getElementById("tanggal").value;
-    const tanggal = firebase.firestore.Timestamp.fromDate(new Date(tanggalInput));
     const pair = document.getElementById("pair").value;
     const tipe = document.getElementById("tipe").value;
     const entry = parseFloat(document.getElementById("entry").value);
@@ -46,11 +43,12 @@ function initJurnalPage() {
     const emosi = document.getElementById("emosi").value;
     const catatan = document.getElementById("catatan").value;
 
-    if (isNaN(entry) || isNaN(exit) || isNaN(lot)) {
-      alert("❌ Entry, Exit, atau Lot tidak valid.");
+    if (!tanggalInput || isNaN(entry) || isNaN(exit) || isNaN(lot)) {
+      alert("❌ Tanggal, Entry, Exit, dan Lot wajib diisi dengan benar.");
       return;
     }
 
+    const tanggal = firebase.firestore.Timestamp.fromDate(new Date(tanggalInput));
     const profit = (exit - entry) * lot * (tipe === "Buy" ? 1 : -1);
 
     const data = {
@@ -73,8 +71,8 @@ function initJurnalPage() {
       form.reset();
       await loadJurnal(currentUser.uid);
     } catch (err) {
-      alert("❌ Gagal simpan data: " + err.message);
-      console.error("Gagal simpan ke Firestore:", err);
+      console.error("❌ Gagal simpan:", err);
+      alert("❌ Gagal menyimpan data. Coba lagi nanti.");
     }
   });
 
@@ -85,19 +83,17 @@ function initJurnalPage() {
       const snapshot = await firebase.firestore()
         .collection("jurnal")
         .where("uid", "==", uid)
-        .get(); // ❌ Tidak pakai orderBy
+        .get();
 
       if (snapshot.empty) {
         tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-muted">📭 Belum ada data jurnal.</td></tr>`;
         return;
       }
 
-      // Urutkan manual berdasarkan tanggal
       const entries = [];
-      snapshot.forEach((doc) => {
-        entries.push(doc.data());
-      });
+      snapshot.forEach((doc) => entries.push(doc.data()));
 
+      // Sort berdasarkan tanggal (newest first)
       entries.sort((a, b) => {
         const tA = a.tanggal?.toDate?.() || new Date(0);
         const tB = b.tanggal?.toDate?.() || new Date(0);
@@ -105,6 +101,7 @@ function initJurnalPage() {
       });
 
       tableBody.innerHTML = "";
+
       entries.forEach((data) => {
         const tanggalStr = data.tanggal?.toDate?.()
           ? data.tanggal.toDate().toLocaleDateString("id-ID", {
@@ -130,8 +127,8 @@ function initJurnalPage() {
         tableBody.innerHTML += row;
       });
     } catch (err) {
+      console.error("❌ Gagal load data:", err);
       tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-danger">❌ Gagal load data.</td></tr>`;
-      console.error("❌ Gagal load jurnal:", err.code, err.message);
     }
   }
 }
