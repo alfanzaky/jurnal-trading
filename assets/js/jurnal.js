@@ -124,5 +124,3 @@ function initJurnalPage() {
     console.error("❌ Gagal load jurnal:", err.code, err.message);
   }
 }
-
-}
