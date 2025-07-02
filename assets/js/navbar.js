@@ -3,25 +3,23 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (!navbarContainer) return;
 
   try {
-    // Load isi navbar.html
+    // Load konten HTML dari navbar
     const response = await fetch("/jurnal-trading/components/navbar.html");
     const html = await response.text();
     navbarContainer.innerHTML = html;
 
-    // 🔐 Pastikan Firebase sudah siap
+    // Pastikan Firebase Auth sudah siap
     if (typeof firebase === "undefined") {
-      console.error("Firebase belum dimuat");
+      console.error("Firebase belum dimuat.");
       return;
     }
 
-    // 🔄 Tunggu auth state
+    // Tunggu status auth
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
-        // Tampilkan email di span
         const emailSpan = document.getElementById("navbarUserEmail");
         if (emailSpan) emailSpan.textContent = user.email;
 
-        // Tombol logout
         const logoutBtn = document.getElementById("navbarLogout");
         if (logoutBtn) {
           logoutBtn.addEventListener("click", () => {
@@ -30,9 +28,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
           });
         }
+      } else {
+        // Redirect ke login kalau belum login
+        window.location.href = "/jurnal-trading/index.html";
       }
     });
   } catch (err) {
-    console.error("Gagal load navbar:", err);
+    console.error("Gagal memuat navbar:", err);
   }
 });
