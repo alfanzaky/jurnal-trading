@@ -74,6 +74,7 @@ function initJurnalPage() {
       await loadJurnal(currentUser.uid);
     } catch (err) {
       alert("❌ Gagal simpan data: " + err.message);
+      console.error("Gagal simpan ke Firestore:", err);
     }
   });
 
@@ -84,7 +85,7 @@ function initJurnalPage() {
       const snapshot = await firebase.firestore()
         .collection("jurnal")
         .where("uid", "==", uid)
-        .orderBy("timestamp", "desc")
+        .orderBy("tanggal", "desc") // pakai tanggal, bukan timestamp
         .get();
 
       if (snapshot.empty) {
@@ -93,16 +94,14 @@ function initJurnalPage() {
       }
 
       tableBody.innerHTML = "";
-
       snapshot.forEach((doc) => {
         const data = doc.data();
 
-        // Cek tanggal aman
-        let tanggalStr = "-";
-        if (data.tanggal && data.tanggal.toDate) {
-          const tgl = data.tanggal.toDate();
-          tanggalStr = tgl.toLocaleDateString("id-ID"); // Output misalnya: 2/7/2025
-        }
+        const tanggalStr = data.tanggal.toDate().toLocaleDateString("id-ID", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        });
 
         const row = `
           <tr>
@@ -120,8 +119,8 @@ function initJurnalPage() {
         tableBody.innerHTML += row;
       });
     } catch (err) {
-      console.error("❌ Gagal load jurnal:", err);
       tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-danger">❌ Gagal load data.</td></tr>`;
+      console.error("❌ Gagal load jurnal:", err.code, err.message);
     }
   }
 }
