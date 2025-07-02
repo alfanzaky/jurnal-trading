@@ -3,7 +3,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const registerForm = document.getElementById('registerForm');
   const messageEl = document.getElementById('authMessage');
 
-  // Helper: tampilkan pesan
+  // ⛔ Cegah user yang sudah login balik ke login.html
+  firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+      window.location.replace(`${window.location.origin}${getBasePath()}/dashboard.html`);
+    }
+  });
+
+  // Helper: tampilkan pesan alert
   const showMessage = (msg, type = 'danger') => {
     messageEl.innerHTML = `<div class="alert alert-${type}" role="alert">${msg}</div>`;
     setTimeout(() => (messageEl.innerHTML = ""), 4000);
@@ -19,14 +26,14 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.innerHTML = loading ? 'Memproses...' : btn.dataset.originalText;
   };
 
-  // Helper: dapatkan base path (misal: /jurnal-trading)
+  // Helper: base path dinamis (misal: /jurnal-trading)
   const getBasePath = () => {
     const path = window.location.pathname.split('/');
     return '/' + (path[1] || '');
   };
 
-  // Login
-  loginForm.addEventListener('submit', async (e) => {
+  // 🔐 Login
+  loginForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value.trim();
@@ -37,7 +44,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       await firebase.auth().signInWithEmailAndPassword(email, password);
-      // Redirect ke dashboard secara dinamis
       window.location.href = `${window.location.origin}${getBasePath()}/dashboard.html`;
     } catch (err) {
       showMessage(err.message);
@@ -46,8 +52,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Register
-  registerForm.addEventListener('submit', async (e) => {
+  // 📝 Register
+  registerForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('registerEmail').value.trim();
     const password = document.getElementById('registerPassword').value.trim();
@@ -60,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
       await firebase.auth().createUserWithEmailAndPassword(email, password);
       showMessage('Registrasi berhasil. Silakan login.', 'success');
 
-      // Pindah ke tab login
+      // Arahkan ke tab login
       const loginTab = new bootstrap.Tab(document.querySelector('#login-tab'));
       loginTab.show();
     } catch (err) {
