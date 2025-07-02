@@ -14,13 +14,13 @@ function waitForElement(selector, callback) {
 function initJurnalPage() {
   const form = document.getElementById("jurnalForm");
   const tableBody = document.getElementById("jurnalTableBody");
-
-  if (!form || !tableBody) return;
+  const submitBtn = form.querySelector("button[type=submit]");
+  const originalFormClass = form.className;
 
   let currentUser = null;
-  let editId = null; // Menyimpan ID dokumen yang sedang diedit
+  let editMode = false;
+  let editDocId = null;
 
-  // Cek login user
   firebase.auth().onAuthStateChanged(async (user) => {
     if (user) {
       currentUser = user;
@@ -30,12 +30,10 @@ function initJurnalPage() {
     }
   });
 
-  // Handle submit form (tambah atau edit)
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const tanggalInput = document.getElementById("tanggal").value;
-    const tanggal = firebase.firestore.Timestamp.fromDate(new Date(tanggalInput));
     const pair = document.getElementById("pair").value;
     const tipe = document.getElementById("tipe").value;
     const entry = parseFloat(document.getElementById("entry").value);
@@ -44,11 +42,12 @@ function initJurnalPage() {
     const emosi = document.getElementById("emosi").value;
     const catatan = document.getElementById("catatan").value;
 
-    if (isNaN(entry) || isNaN(exit) || isNaN(lot)) {
-      alert("❌ Entry, Exit, atau Lot tidak valid.");
+    if (!tanggalInput || isNaN(entry) || isNaN(exit) || isNaN(lot)) {
+      alert("❌ Tanggal, Entry, Exit, dan Lot wajib diisi dengan benar.");
       return;
     }
 
+    const tanggal = firebase.firestore.Timestamp.fromDate(new Date(tanggalInput));
     const profit = (exit - entry) * lot * (tipe === "Buy" ? 1 : -1);
 
     const data = {
@@ -66,25 +65,27 @@ function initJurnalPage() {
     };
 
     try {
-      if (editId) {
-        // Mode edit
-        await firebase.firestore().collection("jurnal").doc(editId).update(data);
-        alert("✅ Jurnal berhasil diperbarui!");
+      if (editMode && editDocId) {
+        await firebase.firestore().collection("jurnal").doc(editDocId).update(data);
+        alert("✅ Data berhasil diperbarui!");
       } else {
-        // Mode tambah
         await firebase.firestore().collection("jurnal").add(data);
-        alert("✅ Jurnal berhasil disimpan!");
+        alert("✅ Data berhasil disimpan!");
       }
 
       form.reset();
-      editId = null;
+      editMode = false;
+      editDocId = null;
+      form.className = originalFormClass;
+      submitBtn.textContent = "Simpan Jurnal";
+
       await loadJurnal(currentUser.uid);
     } catch (err) {
-      alert("❌ Gagal simpan data: " + err.message);
+      console.error("❌ Gagal simpan:", err);
+      alert("❌ Gagal menyimpan data.");
     }
   });
 
-  // Load jurnal ke tabel
   async function loadJurnal(uid) {
     tableBody.innerHTML = `<tr><td colspan="10" class="text-center">⏳ Memuat data...</td></tr>`;
 
@@ -96,16 +97,23 @@ function initJurnalPage() {
         .get();
 
       if (snapshot.empty) {
-        tableBody.innerHTML = `<tr><td colspan="10" class="text-center text-muted">📭 Belum ada jurnal.</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="10" class="text-center text-muted">📭 Belum ada data jurnal.</td></tr>`;
         return;
       }
 
       tableBody.innerHTML = "";
+
       snapshot.forEach((doc) => {
         const data = doc.data();
-        const tanggalStr = data.tanggal?.toDate().toLocaleDateString("id-ID", {
-          year: "numeric", month: "short", day: "numeric",
-        }) || "-";
+        const id = doc.id;
+
+        const tanggalStr = data.tanggal?.toDate?.()
+          ? data.tanggal.toDate().toLocaleDateString("id-ID", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            })
+          : "-";
 
         const row = `
           <tr>
@@ -115,43 +123,61 @@ function initJurnalPage() {
             <td>${data.entry}</td>
             <td>${data.exit}</td>
             <td>${data.lot}</td>
-            <td class="${data.profit >= 0 ? "text-success" : "text-danger"}">${data.profit}</td>
+            <td class="${data.profit >= 0 ? 'text-success' : 'text-danger'}">${data.profit}</td>
             <td>${data.emosi || "-"}</td>
             <td>${data.catatan || "-"}</td>
-            <td>
-              <button class="btn btn-sm btn-warning editBtn" data-id="${doc.id}">Edit</button>
+            <td class="text-center">
+              <button class="btn btn-sm btn-warning me-1" onclick="editJurnal('${id}')">Edit</button>
+              <button class="btn btn-sm btn-danger" onclick="confirmDelete('${id}')">Hapus</button>
             </td>
           </tr>
         `;
         tableBody.innerHTML += row;
       });
-
-      // Aktifkan tombol edit
-      const editButtons = document.querySelectorAll(".editBtn");
-      editButtons.forEach((btn) => {
-        btn.addEventListener("click", async () => {
-          const docId = btn.getAttribute("data-id");
-          const docRef = await firebase.firestore().collection("jurnal").doc(docId).get();
-          const data = docRef.data();
-          if (!data) return;
-
-          // Isi form
-          document.getElementById("tanggal").value = data.tanggal.toDate().toISOString().split("T")[0];
-          document.getElementById("pair").value = data.pair;
-          document.getElementById("tipe").value = data.tipe;
-          document.getElementById("entry").value = data.entry;
-          document.getElementById("exit").value = data.exit;
-          document.getElementById("lot").value = data.lot;
-          document.getElementById("emosi").value = data.emosi || "";
-          document.getElementById("catatan").value = data.catatan || "";
-
-          editId = docId;
-          alert("✏️ Mode edit diaktifkan!");
-        });
-      });
     } catch (err) {
+      console.error("❌ Gagal load data:", err);
       tableBody.innerHTML = `<tr><td colspan="10" class="text-center text-danger">❌ Gagal load data.</td></tr>`;
-      console.error("Gagal load jurnal:", err.message);
     }
   }
+
+  window.editJurnal = async function (docId) {
+    try {
+      const doc = await firebase.firestore().collection("jurnal").doc(docId).get();
+      if (!doc.exists) return;
+
+      const data = doc.data();
+
+      document.getElementById("tanggal").value = data.tanggal.toDate().toISOString().split("T")[0];
+      document.getElementById("pair").value = data.pair;
+      document.getElementById("tipe").value = data.tipe;
+      document.getElementById("entry").value = data.entry;
+      document.getElementById("exit").value = data.exit;
+      document.getElementById("lot").value = data.lot;
+      document.getElementById("emosi").value = data.emosi || "";
+      document.getElementById("catatan").value = data.catatan || "";
+
+      editMode = true;
+      editDocId = docId;
+      submitBtn.textContent = "Update Jurnal";
+      form.classList.add("border", "border-warning", "bg-warning-subtle");
+      form.scrollIntoView({ behavior: "smooth" });
+    } catch (err) {
+      console.error("❌ Gagal ambil data:", err);
+    }
+  };
+
+  window.confirmDelete = function (docId) {
+    const confirmed = confirm("⚠️ Yakin ingin menghapus data ini?");
+    if (!confirmed) return;
+
+    firebase.firestore().collection("jurnal").doc(docId).delete()
+      .then(() => {
+        alert("🗑️ Data berhasil dihapus.");
+        loadJurnal(currentUser.uid);
+      })
+      .catch((err) => {
+        console.error("❌ Gagal hapus data:", err);
+        alert("❌ Gagal menghapus data.");
+      });
+  };
 }
