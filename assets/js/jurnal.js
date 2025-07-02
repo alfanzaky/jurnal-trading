@@ -12,7 +12,7 @@ function waitForElement(selector, callback) {
 }
 
 function initJurnalPage() {
-  console.log("✅ jurnal.js aktif (menunggu form)...");
+  console.log("✅ jurnal.js aktif");
 
   const form = document.getElementById("jurnalForm");
   const tableBody = document.getElementById("jurnalTableBody");
@@ -35,7 +35,6 @@ function initJurnalPage() {
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    alert("📨 Form disubmit!");
 
     const tanggalInput = document.getElementById("tanggal").value;
     const tanggal = firebase.firestore.Timestamp.fromDate(new Date(tanggalInput));
@@ -69,7 +68,6 @@ function initJurnalPage() {
     };
 
     try {
-      alert("🕒 Menyimpan ke Firestore...");
       await firebase.firestore().collection("jurnal").add(data);
       alert("✅ Data berhasil disimpan!");
       form.reset();
@@ -97,9 +95,13 @@ function initJurnalPage() {
       tableBody.innerHTML = "";
       snapshot.forEach((doc) => {
         const data = doc.data();
+
+        // Konversi timestamp ke string tanggal
+        const tanggalStr = data.tanggal.toDate().toISOString().split("T")[0];
+
         const row = `
           <tr>
-            <td>${data.tanggal}</td>
+            <td>${tanggalStr}</td>
             <td>${data.pair}</td>
             <td>${data.tipe}</td>
             <td>${data.entry}</td>
@@ -114,6 +116,7 @@ function initJurnalPage() {
       });
     } catch (err) {
       tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-danger">❌ Gagal load data.</td></tr>`;
+      console.error("Gagal load jurnal:", err);
     }
   }
 }
