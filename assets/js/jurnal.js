@@ -1,5 +1,9 @@
-document.addEventListener("DOMContentLoaded", () => {
-  alert("✅ jurnal.js dimuat");
+// Tunggu navbar & footer selesai dimuat (komponen modular pakai fetch async)
+Promise.all([
+  new Promise(resolve => document.addEventListener("navbarLoaded", resolve)),
+  new Promise(resolve => document.addEventListener("footerLoaded", resolve)),
+]).then(() => {
+  alert("✅ Komponen navbar & footer selesai dimuat");
 
   const form = document.getElementById("jurnalForm");
   const tableBody = document.getElementById("jurnalTableBody");
