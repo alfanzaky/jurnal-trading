@@ -21,18 +21,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     welcomeMsgEl.textContent = `Selamat datang, ${email.split('@')[0]}!`;
 
     try {
+      // ✅ Ambil data dari users/{uid}/journals
       const snapshot = await firebase.firestore()
-        .collection('jurnal')
-        .where('uid', '==', user.uid)
+        .collection('users')
+        .doc(user.uid)
+        .collection('journals')
         .orderBy('tanggal', 'asc')
         .get();
 
-      const entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const entries = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
 
       // Hitung statistik
       const total = entries.length;
-      const totalProfit = entries.reduce((acc, e) => acc + (parseFloat(e.profit) || 0), 0);
-      const wins = entries.filter(e => parseFloat(e.profit) > 0).length;
+      const totalProfit = entries.reduce((acc, e) => acc + (parseFloat(e.hasil) || 0), 0);
+      const wins = entries.filter(e => parseFloat(e.hasil) > 0).length;
       const winRate = total ? ((wins / total) * 100).toFixed(1) : 0;
 
       // Tampilkan ke UI
@@ -62,7 +67,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Render Chart
   function renderChart(entries) {
     const labels = entries.map(e => e.tanggal || 'Tanpa Tanggal');
-    const data = entries.map(e => parseFloat(e.profit) || 0);
+    const data = entries.map(e => parseFloat(e.hasil) || 0); // Gunakan "hasil"
 
     new Chart(chartCanvas, {
       type: 'line',
