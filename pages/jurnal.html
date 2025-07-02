@@ -110,6 +110,26 @@
     </section>
   </main>
 
+  <!-- Modal Konfirmasi Hapus -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-danger">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="deleteModalLabel">Hapus Jurnal</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        Apakah kamu yakin ingin menghapus jurnal ini?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+        <button type="button" id="confirmDeleteBtn" class="btn btn-danger">Hapus</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
   <!-- Footer (modular) -->
   <div id="footerContainer" class="mt-5"></div>
 
