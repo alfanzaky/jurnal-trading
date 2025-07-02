@@ -1,5 +1,3 @@
-// /assets/js/jurnal.js
-
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("jurnalForm");
   const tableBody = document.getElementById("jurnalTableBody");
@@ -10,45 +8,55 @@ document.addEventListener("DOMContentLoaded", () => {
   firebase.auth().onAuthStateChanged(async (user) => {
     if (user) {
       currentUser = user;
-      loadJurnal();
+      await loadJurnal();
     } else {
       window.location.href = "/jurnal-trading/index.html";
     }
   });
 
-  // Handle form submit
+  // Saat form disubmit
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
+
+    const tanggal = document.getElementById("tanggal").value;
+    const pair = document.getElementById("pair").value;
+    const tipe = document.getElementById("tipe").value;
+    const entry = parseFloat(document.getElementById("entry").value);
+    const exit = parseFloat(document.getElementById("exit").value);
+    const lot = parseFloat(document.getElementById("lot").value);
+    const emosi = document.getElementById("emosi").value;
+    const catatan = document.getElementById("catatan").value;
+
+    const profit = (exit - entry) * lot * (tipe === "Buy" ? 1 : -1);
+
     const data = {
-      tanggal: document.getElementById("tanggal").value,
-      pair: document.getElementById("pair").value,
-      tipe: document.getElementById("tipe").value,
-      entry: parseFloat(document.getElementById("entry").value),
-      exit: parseFloat(document.getElementById("exit").value),
-      lot: parseFloat(document.getElementById("lot").value),
-      emosi: document.getElementById("emosi").value,
-      catatan: document.getElementById("catatan").value,
+      tanggal,
+      pair,
+      tipe,
+      entry,
+      exit,
+      lot,
+      emosi: emosi || null,
+      catatan: catatan || null,
+      profit: parseFloat(profit.toFixed(2)),
       uid: currentUser.uid,
-      timestamp: new Date()
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
     };
 
-    // Hitung profit otomatis (jika ingin)
-    const profit = (data.exit - data.entry) * data.lot * (data.tipe === "Buy" ? 1 : -1);
-    data.profit = parseFloat(profit.toFixed(2));
-
     try {
-      await firebase.firestore().collection("jurnal").add(data);
+      await firebase.firestore().collection("jurnal").add(data); // otomatis buat koleksi kalau belum ada
       form.reset();
-      loadJurnal();
-    } catch (err) {
-      console.error("Gagal menyimpan jurnal:", err);
-      alert("Gagal menyimpan data.");
+      await loadJurnal();
+    } catch (error) {
+      console.error("Gagal menyimpan jurnal:", error);
+      alert("Terjadi kesalahan saat menyimpan jurnal.");
     }
   });
 
-  // Load data jurnal dari Firestore
+  // Fungsi untuk memuat jurnal
   async function loadJurnal() {
-    tableBody.innerHTML = "";
+    tableBody.innerHTML = `<tr><td colspan="9" class="text-center">Memuat data...</td></tr>`;
+
     try {
       const snapshot = await firebase
         .firestore()
@@ -56,6 +64,13 @@ document.addEventListener("DOMContentLoaded", () => {
         .where("uid", "==", currentUser.uid)
         .orderBy("tanggal", "desc")
         .get();
+
+      if (snapshot.empty) {
+        tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-muted">Belum ada jurnal.</td></tr>`;
+        return;
+      }
+
+      tableBody.innerHTML = ""; // bersihkan sebelum render
 
       snapshot.forEach((doc) => {
         const data = doc.data();
@@ -67,14 +82,15 @@ document.addEventListener("DOMContentLoaded", () => {
             <td>${data.entry}</td>
             <td>${data.exit}</td>
             <td>${data.lot}</td>
-            <td class="${data.profit >= 0 ? 'text-success' : 'text-danger'}">${data.profit}</td>
+            <td class="${data.profit >= 0 ? "text-success" : "text-danger"}">${data.profit}</td>
             <td>${data.emosi || "-"}</td>
             <td>${data.catatan || "-"}</td>
           </tr>`;
         tableBody.innerHTML += row;
       });
-    } catch (err) {
-      console.error("Gagal memuat jurnal:", err);
+    } catch (error) {
+      console.error("Gagal memuat jurnal:", error);
+      tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-danger">Gagal memuat data.</td></tr>`;
     }
   }
 });
