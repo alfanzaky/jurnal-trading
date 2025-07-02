@@ -79,48 +79,50 @@ function initJurnalPage() {
   });
 
   async function loadJurnal(uid) {
-    tableBody.innerHTML = `<tr><td colspan="9" class="text-center">⏳ Memuat data...</td></tr>`;
+  tableBody.innerHTML = `<tr><td colspan="9" class="text-center">⏳ Memuat data...</td></tr>`;
 
-    try {
-      const snapshot = await firebase.firestore()
-        .collection("jurnal")
-        .where("uid", "==", uid)
-        .orderBy("tanggal", "desc") // pakai tanggal, bukan timestamp
-        .get();
+  try {
+    const snapshot = await firebase.firestore()
+      .collection("jurnal")
+      .where("uid", "==", uid)
+      .get(); // Hapus orderBy dulu
 
-      if (snapshot.empty) {
-        tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-muted">📭 Belum ada data jurnal.</td></tr>`;
-        return;
-      }
-
-      tableBody.innerHTML = "";
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-
-        const tanggalStr = data.tanggal.toDate().toLocaleDateString("id-ID", {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-        });
-
-        const row = `
-          <tr>
-            <td>${tanggalStr}</td>
-            <td>${data.pair}</td>
-            <td>${data.tipe}</td>
-            <td>${data.entry}</td>
-            <td>${data.exit}</td>
-            <td>${data.lot}</td>
-            <td class="${data.profit >= 0 ? 'text-success' : 'text-danger'}">${data.profit}</td>
-            <td>${data.emosi || "-"}</td>
-            <td>${data.catatan || "-"}</td>
-          </tr>
-        `;
-        tableBody.innerHTML += row;
-      });
-    } catch (err) {
-      tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-danger">❌ Gagal load data.</td></tr>`;
-      console.error("❌ Gagal load jurnal:", err.code, err.message);
+    if (snapshot.empty) {
+      tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-muted">📭 Belum ada data jurnal.</td></tr>`;
+      return;
     }
+
+    tableBody.innerHTML = "";
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+
+      const tanggalStr = data.tanggal?.toDate
+        ? data.tanggal.toDate().toLocaleDateString("id-ID", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          })
+        : "-";
+
+      const row = `
+        <tr>
+          <td>${tanggalStr}</td>
+          <td>${data.pair}</td>
+          <td>${data.tipe}</td>
+          <td>${data.entry}</td>
+          <td>${data.exit}</td>
+          <td>${data.lot}</td>
+          <td class="${data.profit >= 0 ? 'text-success' : 'text-danger'}">${data.profit}</td>
+          <td>${data.emosi || "-"}</td>
+          <td>${data.catatan || "-"}</td>
+        </tr>
+      `;
+      tableBody.innerHTML += row;
+    });
+  } catch (err) {
+    tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-danger">❌ Gagal load data.</td></tr>`;
+    console.error("❌ Gagal load jurnal:", err.code, err.message);
   }
+}
+
 }
