@@ -20,12 +20,22 @@
       </ul>
 
       <ul class="navbar-nav ms-auto align-items-center">
-        <li class="nav-item d-none d-lg-block">
+        <!-- Tombol Profil (hanya saat login) -->
+        <li class="nav-item d-none d-lg-block" id="navbarProfile">
           <a class="nav-link d-flex align-items-center" href="/jurnal-trading/pages/profil.html">
             <img src="/jurnal-trading/assets/img/profile.png" alt="Profil" width="28" height="28" class="rounded-circle me-1">
             <span id="navbarUserEmail" style="font-size: 0.9rem;">Profil</span>
           </a>
         </li>
+
+        <!-- Tombol Login (saat belum login) -->
+        <li class="nav-item">
+          <a id="navbarLogin" href="/jurnal-trading/pages/login.html" class="btn btn-sm btn-outline-light ms-2 px-2 py-1" style="font-size: 0.8rem;">
+            Login
+          </a>
+        </li>
+
+        <!-- Tombol Logout (saat login) -->
         <li class="nav-item">
           <button id="navbarLogout" class="btn btn-sm btn-outline-light ms-2 px-2 py-1" style="font-size: 0.8rem;">
             Logout
