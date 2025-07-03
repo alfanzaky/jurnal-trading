@@ -3,98 +3,100 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Jurnal Trading - Login</title>
-
-  <!-- Bootstrap CDN -->
+  <title>Jurnal Trading - Catat dan Evaluasi Tradingmu</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <style>
+    /* Animasi masuk */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeInUp 0.8s ease-out forwards;
+    }
+    .fade-delay-1 { animation-delay: 0.2s; }
+    .fade-delay-2 { animation-delay: 0.4s; }
+    .fade-delay-3 { animation-delay: 0.6s; }
+    .fade-delay-4 { animation-delay: 0.8s; }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Hover effect */
+    .card-hover:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 20px rgba(0,0,0,0.12);
+      transition: all 0.3s ease-in-out;
+    }
+  </style>
 </head>
-<body class="bg-light">
+<body>
+
+  <!-- Navbar -->
+  <div id="navbarContainer"></div>
 
   <!-- Hero Section -->
-  <header class="bg-primary text-white text-center py-5 mb-4">
+  <section class="py-5 bg-light text-center fade-in">
     <div class="container">
-      <h1 class="display-5 fw-bold">🧾 Jurnal Trading</h1>
-      <p class="lead">Catat. Evaluasi. Tingkatkan performa trading kamu.</p>
-    </div>
-  </header>
-
-  <!-- Login/Register Card -->
-  <div class="container" style="max-width: 420px;">
-    <div class="card shadow">
-      <div class="card-body">
-        <!-- Tabs -->
-        <ul class="nav nav-tabs mb-3" id="authTabs" role="tablist">
-          <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#loginTab" type="button" role="tab">Login</button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#registerTab" type="button" role="tab">Register</button>
-          </li>
-        </ul>
-
-        <div class="tab-content" id="authTabContent">
-          <!-- Login Form -->
-          <div class="tab-pane fade show active" id="loginTab" role="tabpanel">
-            <form id="loginForm">
-              <div class="mb-3">
-                <label for="loginEmail" class="form-label">Email</label>
-                <input type="email" class="form-control" id="loginEmail" required />
-              </div>
-              <div class="mb-3">
-                <label for="loginPassword" class="form-label">Password</label>
-                <input type="password" class="form-control" id="loginPassword" required />
-              </div>
-              <button type="submit" class="btn btn-primary w-100">Masuk</button>
-            </form>
-          </div>
-
-          <!-- Register Form -->
-          <div class="tab-pane fade" id="registerTab" role="tabpanel">
-            <form id="registerForm">
-              <div class="mb-3">
-                <label for="registerEmail" class="form-label">Email</label>
-                <input type="email" class="form-control" id="registerEmail" required />
-              </div>
-              <div class="mb-3">
-                <label for="registerPassword" class="form-label">Password</label>
-                <input type="password" class="form-control" id="registerPassword" required />
-              </div>
-              <button type="submit" class="btn btn-success w-100">Daftar</button>
-            </form>
-          </div>
-        </div>
-
-        <!-- Error Message -->
-        <div id="authMessage" class="mt-3 text-center text-danger"></div>
+      <h1 class="display-4 fw-bold">Jurnal Trading Digital</h1>
+      <p class="lead">Catat, evaluasi, dan tingkatkan performa trading-mu setiap hari.</p>
+      <div class="mt-4">
+        <a href="pages/login.html" class="btn btn-primary btn-lg me-2">Login</a>
+        <a href="pages/login.html" class="btn btn-outline-secondary btn-lg">Daftar Sekarang</a>
       </div>
     </div>
-  </div>
+  </section>
+
+  <!-- Fitur Section -->
+  <section class="py-5">
+    <div class="container">
+      <h2 class="text-center mb-4 fade-in fade-delay-1">Kenapa pakai Jurnal Trading?</h2>
+      <div class="row text-center">
+        <div class="col-md-3 mb-4 fade-in fade-delay-1">
+          <div class="card h-100 shadow-sm border-0 card-hover">
+            <div class="card-body">
+              <h5 class="card-title">📈 Statistik Otomatis</h5>
+              <p class="card-text">Lihat performa tradingmu lewat grafik & ringkasan.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 mb-4 fade-in fade-delay-2">
+          <div class="card h-100 shadow-sm border-0 card-hover">
+            <div class="card-body">
+              <h5 class="card-title">🧠 Catatan Emosi</h5>
+              <p class="card-text">Pantau kondisi emosional saat trading untuk refleksi.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 mb-4 fade-in fade-delay-3">
+          <div class="card h-100 shadow-sm border-0 card-hover">
+            <div class="card-body">
+              <h5 class="card-title">🧾 Riwayat Lengkap</h5>
+              <p class="card-text">Simpan semua catatan tradingmu dengan detail dan rapi.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 mb-4 fade-in fade-delay-4">
+          <div class="card h-100 shadow-sm border-0 card-hover">
+            <div class="card-body">
+              <h5 class="card-title">🛡️ Data Aman</h5>
+              <p class="card-text">Tersimpan di cloud menggunakan Firebase milikmu sendiri.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- Footer -->
-  <footer class="text-center mt-5 text-muted small">
-    <p>© 2025 Jurnal Trading. Dibuat oleh alfanzaky.</p>
-  </footer>
+  <div id="footerContainer"></div>
 
-  <!-- Bootstrap JS -->
+  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-
-  <!-- Firebase config -->
-  <script src="firebase/firebase-config.js"></script>
-
-  <!-- Auth logic -->
-  <script src="assets/js/login.js"></script>
-  <script>
-  firebase.auth().onAuthStateChanged((user) => {
-    if (user) {
-      window.location.replace("/jurnal-trading/dashboard.html");
-    }
-  });
-</script>
-
+  <script src="assets/js/navbar.js"></script>
+  <script src="assets/js/footer.js"></script>
 </body>
 </html>
