@@ -3,10 +3,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const registerForm = document.getElementById('registerForm');
   const messageEl = document.getElementById('authMessage');
 
-  // ⛔ Cegah user yang sudah login balik ke login.html
+  // Cegah user yang sudah login balik ke login.html
   firebase.auth().onAuthStateChanged((user) => {
     if (user) {
-      window.location.replace(`${window.location.origin}${getBasePath()}/dashboard.html`);
+      window.location.replace(`${window.location.origin}${getBasePath()}/pages/dashboard.html`);
     }
   });
 
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => (messageEl.innerHTML = ""), 4000);
   };
 
-  // Helper: tombol loading
+  // Helper: loading indicator pada tombol
   const setLoading = (form, loading) => {
     const btn = form.querySelector('button[type="submit"]');
     if (!btn.dataset.originalText) {
@@ -26,13 +26,13 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.innerHTML = loading ? 'Memproses...' : btn.dataset.originalText;
   };
 
-  // Helper: base path dinamis (misal: /jurnal-trading)
+  // Helper: base path dinamis
   const getBasePath = () => {
     const path = window.location.pathname.split('/');
     return '/' + (path[1] || '');
   };
 
-  // 🔐 Login
+  // 🔐 Login Handler
   loginForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('loginEmail').value.trim();
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       await firebase.auth().signInWithEmailAndPassword(email, password);
-      window.location.href = `${window.location.origin}${getBasePath()}/dashboard.html`;
+      window.location.href = `${window.location.origin}${getBasePath()}/pages/dashboard.html`;
     } catch (err) {
       showMessage(err.message);
     } finally {
@@ -52,23 +52,51 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // 📝 Register
+  // 📝 Register Handler
   registerForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const email = document.getElementById('registerEmail').value.trim();
-    const password = document.getElementById('registerPassword').value.trim();
 
-    if (!email || !password) return showMessage("Email dan password wajib diisi.");
+    // Ambil semua input
+    const nama = document.getElementById('namaLengkap').value.trim();
+    const email = document.getElementById('registerEmail').value.trim();
+    const password = document.getElementById('registerPassword').value;
+    const konfirmasi = document.getElementById('konfirmasiPassword').value;
+    const tipe = document.getElementById('tipeTrader').value;
+    const tujuan = document.getElementById('tujuanTrading').value.trim();
+    const setuju = document.getElementById('setujuSK').checked;
+
+    // Validasi form
+    if (!nama || !email || !password || !konfirmasi || !tipe || !tujuan)
+      return showMessage("⚠️ Semua field wajib diisi.");
+
+    if (password !== konfirmasi)
+      return showMessage("❌ Password dan konfirmasi tidak cocok.");
+
+    if (!setuju)
+      return showMessage("❗ Anda harus menyetujui Syarat & Ketentuan.");
 
     setLoading(registerForm, true);
 
     try {
-      await firebase.auth().createUserWithEmailAndPassword(email, password);
-      showMessage('Registrasi berhasil. Silakan login.', 'success');
+      // Buat akun di Firebase Auth
+      const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+      const user = userCredential.user;
 
-      // Arahkan ke tab login
+      // Simpan info tambahan ke Firestore
+      await firebase.firestore().collection("users").doc(user.uid).set({
+        nama,
+        email,
+        tipeTrader: tipe,
+        tujuanTrading: tujuan,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      showMessage("✅ Registrasi berhasil! Silakan login.", "success");
+
+      // Pindah ke tab login
       const loginTab = new bootstrap.Tab(document.querySelector('#login-tab'));
       loginTab.show();
+      registerForm.reset();
     } catch (err) {
       showMessage(err.message);
     } finally {
