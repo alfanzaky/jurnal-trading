@@ -1,16 +1,19 @@
-// Pastikan Firebase Auth sudah dimuat via CDN sebelum ini
-// Firebase SDK harus sudah di-initialize di firebase-config.js
-
 firebase.auth().onAuthStateChanged((user) => {
-  const isAuthPage = location.pathname.endsWith("index.html") || location.pathname === "/jurnal-trading/";
+  const currentPath = window.location.pathname;
+  const basePath = '/jurnal-trading';
+  const isLoginPage =
+    currentPath === `${basePath}/` ||
+    currentPath === `${basePath}/index.html`;
 
-  if (!user && !isAuthPage) {
-    // Jika user tidak login dan bukan di halaman index → redirect
-    window.location.href = "/jurnal-trading/index.html";
-  }
-
-  // (Opsional) kalau kamu mau redirect user yg sudah login dari index ke dashboard
-  if (user && isAuthPage) {
-    window.location.href = "/jurnal-trading/dashboard.html";
+  if (user) {
+    // ✅ Jika user login dan masih di halaman index → arahkan ke dashboard
+    if (isLoginPage) {
+      window.location.href = `${basePath}/pages/dashboard.html`;
+    }
+  } else {
+    // ❌ Jika user belum login dan bukan di halaman index → arahkan ke index
+    if (!isLoginPage) {
+      window.location.href = `${basePath}/index.html`;
+    }
   }
 });
