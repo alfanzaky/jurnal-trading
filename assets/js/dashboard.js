@@ -1,97 +1,99 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  const user = firebase.auth().currentUser;
-  if (!user) return window.location.href = "/jurnal-trading/pages/login.html";
-
-  const uid = user.uid;
-  const db = firebase.firestore();
-
-  const greetingEl = document.getElementById("greeting");
+  const userNameEl = document.getElementById("userName");
   const totalJurnalEl = document.getElementById("totalJurnal");
-  const winrateEl = document.getElementById("winrate");
-  const profitEl = document.getElementById("totalProfit");
-  const lossEl = document.getElementById("totalLoss");
-  const recentTable = document.getElementById("recentJournals");
+  const winRateEl = document.getElementById("winRate");
+  const totalPLEl = document.getElementById("totalPL");
+  const riwayatEl = document.getElementById("riwayatTerbaru");
+  const logoutBtn = document.getElementById("logoutBtn");
 
-  // Load nama dari koleksi users
-  try {
-    const userDoc = await db.collection("users").doc(uid).get();
-    const nama = userDoc.exists ? userDoc.data().nama : user.email;
-    greetingEl.innerHTML = `Hi, ${nama.split(" ")[0]} 👋`;
-  } catch (err) {
-    console.error("❌ Gagal ambil data user:", err.message);
-  }
+  const db = firebase.firestore();
+  const auth = firebase.auth();
+  const user = auth.currentUser;
 
-  // Load data jurnal
+  if (!user) return;
+
   try {
-    const snapshot = await db.collection("jurnal")
-      .where("uid", "==", uid)
+    // 🔎 Ambil data user
+    const userDoc = await db.collection("users").doc(user.uid).get();
+    const userData = userDoc.data();
+    userNameEl.textContent = userData?.nama || "Trader";
+
+    // 📈 Ambil jurnal
+    const snapshot = await db
+      .collection("jurnal")
+      .where("uid", "==", user.uid)
       .orderBy("tanggal", "desc")
-      .limit(10)
+      .limit(100)
       .get();
 
     const data = [];
-    let win = 0, total = 0, profit = 0, loss = 0;
+    let totalProfit = 0;
+    let winCount = 0;
 
-    snapshot.forEach(doc => {
-      const d = doc.data();
-      data.push(d);
-      total++;
-      if (d.profit >= 0) {
-        win++;
-        profit += d.profit;
-      } else {
-        loss += Math.abs(d.profit);
-      }
+    snapshot.forEach((doc) => {
+      const item = doc.data();
+      data.push(item);
+      totalProfit += Number(item.profit) || 0;
+      if (Number(item.profit) > 0) winCount++;
     });
 
-    // Update summary
+    const total = data.length;
+    const winrate = total ? ((winCount / total) * 100).toFixed(1) : 0;
+
     totalJurnalEl.textContent = total;
-    winrateEl.textContent = total > 0 ? Math.round((win / total) * 100) + "%" : "0%";
-    profitEl.textContent = profit;
-    lossEl.textContent = loss;
+    winRateEl.textContent = winrate + "%";
+    totalPLEl.textContent = "Rp " + totalProfit.toLocaleString("id-ID");
 
-    // Update table
-    if (data.length === 0) {
-      recentTable.innerHTML = `<tr><td colspan="5" class="text-center text-muted">Belum ada data.</td></tr>`;
-    } else {
-      recentTable.innerHTML = data.map(d => `
-        <tr>
-          <td>${d.tanggal}</td>
-          <td>${d.pair}</td>
-          <td>${d.tipe}</td>
-          <td class="${d.profit >= 0 ? 'text-success' : 'text-danger'} fw-bold">${d.profit}</td>
-          <td>${d.emosi || '-'}</td>
-        </tr>
-      `).join("");
-    }
-
-    // Chart
+    // Chart performa
     const ctx = document.getElementById("performanceChart").getContext("2d");
     new Chart(ctx, {
-      type: 'line',
+      type: "line",
       data: {
         labels: data.map(d => d.tanggal).reverse(),
         datasets: [{
-          label: 'Profit/Loss',
+          label: "Profit/Loss",
           data: data.map(d => d.profit).reverse(),
-          borderColor: '#ffc107',
-          tension: 0.3
-        }]
+          borderColor: "orange",
+          backgroundColor: "rgba(255,193,7,0.2)",
+          fill: true,
+        }],
       },
       options: {
         responsive: true,
         scales: {
-          y: { beginAtZero: false }
+          y: {
+            ticks: { callback: val => "Rp " + val }
+          }
         }
       }
     });
+
+    // Tabel riwayat terbaru
+    if (data.length > 0) {
+      riwayatEl.innerHTML = "";
+      data.slice(0, 5).forEach(item => {
+        riwayatEl.innerHTML += `
+          <tr>
+            <td>${item.tanggal}</td>
+            <td>${item.simbol || "-"}</td>
+            <td class="${item.profit > 0 ? 'text-success' : 'text-danger'}">
+              ${item.profit > 0 ? "+" : ""}${item.profit}
+            </td>
+          </tr>
+        `;
+      });
+    } else {
+      riwayatEl.innerHTML = `<tr><td colspan="3" class="text-center text-muted">Belum ada data</td></tr>`;
+    }
+
   } catch (err) {
-    console.error("❌ Gagal ambil jurnal:", err.message);
+    console.error("❌ Error dashboard:", err);
   }
 
-  // Logout handler
-  document.getElementById("logoutBtn")?.addEventListener("click", async () => {
+  // Logout
+  logoutBtn?.addEventListener("click", async (e) => {
+    e.preventDefault();
     await firebase.auth().signOut();
-    window.location.href = "/jurnal-trading/index.html";
+    window.location.href = "/jurnal-trading/pages/login.html";
   });
 });
