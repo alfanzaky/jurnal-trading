@@ -3,30 +3,29 @@ document.addEventListener('DOMContentLoaded', () => {
   const registerForm = document.getElementById('registerForm');
   const messageEl = document.getElementById('authMessage');
 
-  // Cegah user yang sudah login balik ke login.html
+  // Cegah user login ulang
   firebase.auth().onAuthStateChanged((user) => {
     if (user) {
       window.location.replace(`${window.location.origin}${getBasePath()}/pages/dashboard.html`);
     }
   });
 
-  // Helper: tampilkan pesan alert
+  // Helper: Tampilkan pesan alert
   const showMessage = (msg, type = 'danger') => {
     messageEl.innerHTML = `<div class="alert alert-${type}" role="alert">${msg}</div>`;
-    setTimeout(() => (messageEl.innerHTML = ""), 4000);
+    messageEl.scrollIntoView({ behavior: "smooth" });
+    setTimeout(() => (messageEl.innerHTML = ""), 5000);
   };
 
-  // Helper: loading indicator pada tombol
+  // Helper: loading indikator
   const setLoading = (form, loading) => {
     const btn = form.querySelector('button[type="submit"]');
-    if (!btn.dataset.originalText) {
-      btn.dataset.originalText = btn.innerHTML;
-    }
+    if (!btn.dataset.originalText) btn.dataset.originalText = btn.innerHTML;
     btn.disabled = loading;
     btn.innerHTML = loading ? 'Memproses...' : btn.dataset.originalText;
   };
 
-  // Helper: base path dinamis
+  // Helper: base path dinamis (khusus GitHub Pages)
   const getBasePath = () => {
     const path = window.location.pathname.split('/');
     return '/' + (path[1] || '');
@@ -46,7 +45,8 @@ document.addEventListener('DOMContentLoaded', () => {
       await firebase.auth().signInWithEmailAndPassword(email, password);
       window.location.href = `${window.location.origin}${getBasePath()}/pages/dashboard.html`;
     } catch (err) {
-      showMessage(err.message);
+      console.error("Login gagal:", err);
+      showMessage("❌ " + cleanFirebaseError(err.message));
     } finally {
       setLoading(loginForm, false);
     }
@@ -56,7 +56,6 @@ document.addEventListener('DOMContentLoaded', () => {
   registerForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    // Ambil semua input
     const nama = document.getElementById('namaLengkap').value.trim();
     const email = document.getElementById('registerEmail').value.trim();
     const password = document.getElementById('registerPassword').value;
@@ -65,9 +64,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const tujuan = document.getElementById('tujuanTrading').value.trim();
     const setuju = document.getElementById('setujuSK').checked;
 
-    // Validasi form
+    // Validasi
     if (!nama || !email || !password || !konfirmasi || !tipe || !tujuan)
       return showMessage("⚠️ Semua field wajib diisi.");
+
+    if (!validateEmail(email))
+      return showMessage("📧 Format email tidak valid.");
 
     if (password !== konfirmasi)
       return showMessage("❌ Password dan konfirmasi tidak cocok.");
@@ -78,11 +80,9 @@ document.addEventListener('DOMContentLoaded', () => {
     setLoading(registerForm, true);
 
     try {
-      // Buat akun di Firebase Auth
       const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
       const user = userCredential.user;
 
-      // Simpan info tambahan ke Firestore
       await firebase.firestore().collection("users").doc(user.uid).set({
         nama,
         email,
@@ -93,14 +93,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
       showMessage("✅ Registrasi berhasil! Silakan login.", "success");
 
-      // Pindah ke tab login
       const loginTab = new bootstrap.Tab(document.querySelector('#login-tab'));
       loginTab.show();
       registerForm.reset();
     } catch (err) {
-      showMessage(err.message);
+      console.error("Registrasi gagal:", err);
+      showMessage("❌ " + cleanFirebaseError(err.message));
     } finally {
       setLoading(registerForm, false);
     }
   });
+
+  // Helper: Validasi email
+  const validateEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  // Helper: Bersihkan pesan error Firebase
+  const cleanFirebaseError = (msg) => {
+    if (msg.includes("auth/email-already-in-use")) return "Email sudah digunakan.";
+    if (msg.includes("auth/invalid-email")) return "Email tidak valid.";
+    if (msg.includes("auth/weak-password")) return "Password minimal 6 karakter.";
+    if (msg.includes("auth/user-not-found")) return "Akun tidak ditemukan.";
+    if (msg.includes("auth/wrong-password")) return "Password salah.";
+    return msg;
+  };
 });
