@@ -1,106 +1,54 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
   <title>Jurnal Trading</title>
-  <meta name="description" content="Jurnal Trading - Catat dan evaluasi performa trading kamu secara profesional.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Jurnal Trading - Catat dan evaluasi performa trading Anda secara efisien." />
+  <meta name="keywords" content="jurnal trading, trading log, forex, crypto" />
+  <meta name="author" content="alfanzaky" />
   <link rel="icon" href="/jurnal-trading/assets/img/favicon.png" type="image/x-icon" />
 
-  <!-- Fonts & CSS dari template -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap">
-  <link rel="stylesheet" href="/jurnal-trading/template/DattaAble-1.0.0/dist/assets/css/style.css">
-  <style>
-    body {
-      font-family: 'Open Sans', sans-serif;
-      background-color: #1e293b;
-      color: white;
-      margin: 0;
-      padding: 0;
-    }
-
-    header {
-      text-align: center;
-      padding: 100px 20px 60px;
-    }
-
-    header h1 {
-      font-size: 2rem;
-      font-weight: 600;
-      margin-bottom: 20px;
-    }
-
-    header p {
-      font-size: 1rem;
-      color: #d1d5db;
-      max-width: 600px;
-      margin: 0 auto 30px;
-    }
-
-    .cta-btn {
-      background-color: white;
-      color: #1e293b;
-      padding: 12px 28px;
-      border-radius: 30px;
-      font-weight: 600;
-      text-decoration: none;
-      transition: 0.3s ease;
-    }
-
-    .cta-btn:hover {
-      opacity: 0.85;
-    }
-
-    .hero-image {
-      max-width: 100%;
-      height: auto;
-      margin-top: 50px;
-      border-radius: 12px;
-      border: 3px solid white;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-    }
-
-    footer {
-      text-align: center;
-      padding: 20px 10px;
-      background-color: #111827;
-      font-size: 0.9rem;
-      color: #9ca3af;
-      margin-top: 60px;
-    }
-
-    @media (min-width: 768px) {
-      header h1 {
-        font-size: 2.5rem;
-      }
-
-      header p {
-        font-size: 1.125rem;
-      }
-    }
-  </style>
+  <!-- Template CSS -->
+  <link rel="stylesheet" href="/jurnal-trading/template/DattaAble-1.0.0/dist/assets/css/plugins/animate.min.css" />
+  <link rel="stylesheet" href="/jurnal-trading/template/DattaAble-1.0.0/dist/assets/css/plugins/swiper-bundle.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600&display=swap" />
+  <link rel="stylesheet" href="/jurnal-trading/template/DattaAble-1.0.0/dist/assets/fonts/phosphor/duotone/style.css" />
+  <link rel="stylesheet" href="/jurnal-trading/template/DattaAble-1.0.0/dist/assets/fonts/tabler-icons.min.css" />
+  <link rel="stylesheet" href="/jurnal-trading/template/DattaAble-1.0.0/dist/assets/fonts/feather.css" />
+  <link rel="stylesheet" href="/jurnal-trading/template/DattaAble-1.0.0/dist/assets/fonts/fontawesome.css" />
+  <link rel="stylesheet" href="/jurnal-trading/template/DattaAble-1.0.0/dist/assets/fonts/material.css" />
+  <link rel="stylesheet" href="/jurnal-trading/template/DattaAble-1.0.0/dist/assets/css/style.css" />
 </head>
-<body>
+<body class="bg-theme-sidebarbg dark:bg-dark-500">
 
   <!-- Hero Section -->
-  <header>
-    <h1>Selamat datang di <span style="color: #60a5fa;">Jurnal Trading</span></h1>
-    <p>
-      Catat, evaluasi, dan tingkatkan performa trading kamu secara profesional.<br>
-      Gratis dan mudah digunakan!
-    </p>
-    <a href="/jurnal-trading/pages/login.html" class="cta-btn">Mulai Sekarang</a>
-
-    <div>
-      <img src="/jurnal-trading/template/DattaAble-1.0.0/dist/assets/images/landing/img-header-main.jpg"
-           alt="Preview Dashboard" class="hero-image">
+  <section class="min-h-screen flex items-center justify-center text-center px-4 py-20">
+    <div class="w-full max-w-3xl">
+      <h1 class="text-white text-[22px] sm:text-[32px] md:text-[42px] lg:text-[52px] font-semibold leading-tight mb-6">
+        Selamat datang di <br class="hidden sm:block" />
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-pink-500 to-blue-500 animate-[move-bg_24s_infinite_linear]">
+          Jurnal Trading
+        </span>
+      </h1>
+      <p class="text-white/80 text-sm sm:text-base md:text-lg mb-8">
+        Catat, evaluasi, dan tingkatkan performa trading kamu secara profesional. Gratis dan mudah digunakan!
+      </p>
+      <a href="/jurnal-trading/pages/login.html" class="btn bg-white text-dark-500 hover:opacity-80 rounded-full px-6 py-3 text-sm sm:text-base transition-all">
+        Mulai Sekarang
+      </a>
+      <div class="mt-12">
+        <img src="/jurnal-trading/template/DattaAble-1.0.0/dist/assets/images/landing/img-header-main.jpg" alt="Preview Dashboard"
+          class="rounded-[14px_14px_0_0] border-4 border-white shadow-lg mx-auto max-w-full h-auto" />
+      </div>
     </div>
-  </header>
+  </section>
 
-  <!-- Footer -->
-  <footer>
-    &copy; 2025 Jurnal Trading. All rights reserved.
-  </footer>
-
+  <!-- Script -->
+  <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+  <script src="/jurnal-trading/template/DattaAble-1.0.0/dist/assets/js/plugins/wow.min.js"></script>
+  <script>
+    new WOW({ animateClass: 'animate__animated' }).init();
+  </script>
 </body>
 </html>
