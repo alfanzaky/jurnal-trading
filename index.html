@@ -1,99 +1,77 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
   <title>Jurnal Trading</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Jurnal Trading - Catat dan evaluasi performa trading Anda secara efisien." />
   <link rel="icon" href="/jurnal-trading/assets/img/favicon.png" type="image/x-icon" />
-  
-  <!-- Template Styles -->
+
+  <!-- CSS -->
   <link rel="stylesheet" href="/jurnal-trading/template/DattaAble-1.0.0/dist/assets/css/plugins/animate.min.css" />
   <link rel="stylesheet" href="/jurnal-trading/template/DattaAble-1.0.0/dist/assets/css/plugins/swiper-bundle.css" />
-  <link rel="stylesheet" href="/jurnal-trading/template/DattaAble-1.0.0/dist/assets/fonts/tabler-icons.min.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&display=swap" />
+  <link rel="stylesheet" href="/jurnal-trading/template/DattaAble-1.0.0/dist/assets/fonts/fontawesome.css" />
   <link rel="stylesheet" href="/jurnal-trading/template/DattaAble-1.0.0/dist/assets/css/style.css" />
-  <style>
-    body {
-      font-family: 'Open Sans', sans-serif;
-    }
-    .hero-section {
-      padding-top: 120px;
-      padding-bottom: 60px;
-    }
-    .hero-title span {
-      background-image: linear-gradient(to right, #3b82f6, #ec4899, #3b82f6);
-      background-clip: text;
-      -webkit-background-clip: text;
-      color: transparent;
-      font-weight: 700;
-    }
-    footer {
-      background-color: #1e293b;
-      color: #cbd5e1;
-      text-align: center;
-      padding: 20px 0;
-    }
-  </style>
 </head>
 <body class="bg-theme-sidebarbg text-white">
 
   <!-- Hero Section -->
-  <section class="hero-section container mx-auto px-6 flex flex-col-reverse md:flex-row items-center justify-between gap-10">
-    <!-- Text Content -->
-    <div class="md:w-1/2 text-center md:text-left">
-      <h1 class="hero-title text-3xl md:text-5xl leading-tight mb-5">
-        Selamat datang di <span>Jurnal Trading</span>
+  <section class="min-h-screen flex flex-col justify-center items-center px-4 text-center">
+    <div class="max-w-4xl">
+      <h1 class="text-[26px] sm:text-[32px] md:text-[42px] lg:text-[48px] font-bold mb-4 leading-tight">
+        Selamat datang di <br />
+        <span class="bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500">Jurnal Trading</span>
       </h1>
-      <p class="text-white/80 text-base md:text-lg mb-6">
+      <p class="text-white/80 text-[15px] sm:text-[16px] md:text-[18px] mb-6 px-2 md:px-8">
         Catat, evaluasi, dan tingkatkan performa trading kamu secara profesional. Gratis dan mudah digunakan!
       </p>
-      <a href="/jurnal-trading/pages/login.html" class="btn bg-white text-dark-700 hover:opacity-90 px-6 py-3 rounded-full text-sm font-medium transition-all">
+      <a href="/jurnal-trading/pages/login.html" class="inline-block bg-white text-dark-700 font-semibold px-6 py-3 rounded-full hover:opacity-80 transition mb-8 shadow">
         Mulai Sekarang
       </a>
-    </div>
-
-    <!-- Image -->
-    <div class="md:w-1/2">
-      <img src="/jurnal-trading/template/DattaAble-1.0.0/dist/assets/images/landing/img-header-main.jpg" alt="Preview"
-           class="w-full max-w-md mx-auto rounded-xl shadow-md border-4 border-white" />
+      <div class="mt-4">
+        <img src="/jurnal-trading/template/DattaAble-1.0.0/dist/assets/images/landing/img-header-main.jpg"
+             alt="Preview Dashboard"
+             class="rounded-xl shadow-xl border-4 border-white max-w-full h-auto mx-auto" />
+      </div>
     </div>
   </section>
 
-  <!-- Features -->
-  <section class="py-16 bg-dark-400">
-    <div class="container mx-auto px-6 text-center">
-      <h2 class="text-2xl md:text-3xl font-semibold mb-4">Kenapa Jurnal Trading?</h2>
-      <p class="text-white/70 mb-10">Fitur-fitur unggulan untuk membantu kamu menjadi trader lebih baik</p>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        <div>
-          <i class="ti ti-chart-line text-4xl text-primary-500 mb-4"></i>
-          <h4 class="text-lg font-semibold mb-2">Statistik Performa</h4>
-          <p class="text-white/60">Visualisasi hasil trading kamu dalam grafik & metrik yang mudah dipahami.</p>
-        </div>
-        <div>
-          <i class="ti ti-notebook text-4xl text-primary-500 mb-4"></i>
-          <h4 class="text-lg font-semibold mb-2">Catatan Harian</h4>
-          <p class="text-white/60">Tulis strategi, emosi, dan evaluasi setiap entry untuk refleksi ke depan.</p>
-        </div>
-        <div>
-          <i class="ti ti-lock text-4xl text-primary-500 mb-4"></i>
-          <h4 class="text-lg font-semibold mb-2">Privasi Aman</h4>
-          <p class="text-white/60">Data kamu terenkripsi dan hanya dapat diakses oleh kamu sendiri.</p>
-        </div>
+  <!-- Fitur Section -->
+  <section class="bg-dark-700 py-12 px-6 text-center text-white">
+    <h2 class="text-[22px] md:text-[28px] font-semibold mb-4">Kenapa Jurnal Trading?</h2>
+    <p class="text-white/70 max-w-xl mx-auto mb-10">
+      Fitur-fitur unggulan untuk membantu kamu menjadi trader lebih baik
+    </p>
+    <div class="grid gap-8 sm:grid-cols-2 md:grid-cols-3 max-w-5xl mx-auto">
+      <div>
+        <i class="fas fa-chart-line text-3xl mb-3 text-primary-500"></i>
+        <h3 class="font-bold text-lg mb-2">Statistik Performa</h3>
+        <p class="text-sm text-white/70">Grafik & metrik hasil trading yang mudah dipahami.</p>
+      </div>
+      <div>
+        <i class="fas fa-book text-3xl mb-3 text-primary-500"></i>
+        <h3 class="font-bold text-lg mb-2">Catatan Harian</h3>
+        <p class="text-sm text-white/70">Tuliskan strategi, emosi, dan refleksi setiap entry kamu.</p>
+      </div>
+      <div>
+        <i class="fas fa-lock text-3xl mb-3 text-primary-500"></i>
+        <h3 class="font-bold text-lg mb-2">Privasi Aman</h3>
+        <p class="text-sm text-white/70">Data kamu terenkripsi dan hanya kamu yang bisa akses.</p>
       </div>
     </div>
   </section>
 
   <!-- Footer -->
-  <footer>
+  <footer class="text-center text-white py-6 bg-dark-800 text-sm">
     © 2025 Jurnal Trading. All rights reserved.
   </footer>
 
   <!-- Scripts -->
   <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
-  <script src="/jurnal-trading/template/DattaAble-1.0.0/dist/assets/js/plugins/simplebar.min.js"></script>
-  <script src="/jurnal-trading/template/DattaAble-1.0.0/dist/assets/js/plugins/popper.min.js"></script>
-  <script src="/jurnal-trading/template/DattaAble-1.0.0/dist/assets/js/plugins/feather.min.js"></script>
-  <script src="/jurnal-trading/template/DattaAble-1.0.0/dist/assets/js/script.js"></script>
+  <script src="/jurnal-trading/template/DattaAble-1.0.0/dist/assets/js/plugins/wow.min.js"></script>
+  <script>
+    new WOW({ animateClass: 'animate__animated' }).init();
+  </script>
 </body>
 </html>
